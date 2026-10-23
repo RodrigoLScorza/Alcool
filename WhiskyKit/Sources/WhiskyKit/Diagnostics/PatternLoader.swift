@@ -17,6 +17,7 @@
 //
 
 import Foundation
+import os.log
 
 /// Loads and validates crash pattern and remediation action definitions from JSON resources.
 ///
@@ -24,6 +25,8 @@ import Foundation
 /// SPM resource bundle. The loader validates structure at load time and fails
 /// fast in debug builds.
 public enum PatternLoader {
+    private static let logger = Logger(subsystem: Bundle.whiskyBundleIdentifier, category: "PatternLoader")
+
     // MARK: - JSON Schema Types
 
     private struct PatternFile: Codable {
@@ -69,7 +72,7 @@ public enum PatternLoader {
     ///
     /// - Returns: Tuple of patterns array and remediations dictionary.
     public static func loadDefaults() -> ([CrashPattern], [String: RemediationAction]) {
-        guard let patternsURL = Bundle.module.url(
+        guard let patternsURL = Bundle.whiskyKitResources?.url(
             forResource: "patterns",
             withExtension: "json"
         )
@@ -77,7 +80,7 @@ public enum PatternLoader {
             return handleMissingResource("patterns.json")
         }
 
-        guard let remediationsURL = Bundle.module.url(
+        guard let remediationsURL = Bundle.whiskyKitResources?.url(
             forResource: "remediations",
             withExtension: "json"
         )
@@ -100,11 +103,11 @@ public enum PatternLoader {
 
     // MARK: - Private
 
+    /// A missing resource is a runtime condition (an app moved while running
+    /// can't find its resources), so it is logged and crash diagnosis is
+    /// skipped instead of taking the app down.
     private static func handleMissingResource(_ name: String) -> ([CrashPattern], [String: RemediationAction]) {
-        #if DEBUG
-        fatalError("Missing resource: \(name) in Bundle.module")
-        #else
+        logger.error("Missing resource: \(name, privacy: .public); crash diagnosis is unavailable")
         return ([], [:])
-        #endif
     }
 }

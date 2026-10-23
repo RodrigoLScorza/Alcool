@@ -45,6 +45,55 @@ without sharing bottles, settings or URL handling.
   app icon and the Discord presence text. These change in a later pass, ideally without editing
   every translation by hand.
 
+## Alcool features and fixes
+
+### Installed programs become Mac apps
+
+When an installer adds a shortcut to the Start Menu or the Desktop of a bottle,
+Alcool does what Windows does with it: the program shows up on the Mac.
+
+- The program is pinned in the bottle, including programs installed outside
+  Program Files (for example launchers under `AppData`, such as Velopack and
+  Squirrel apps). Upstream only pinned Program Files programs and **deleted**
+  the other shortcuts without pinning anything.
+- A Mac app that launches it is created in `~/Applications/Alcool`, where
+  Launchpad and Spotlight find it, and on the Desktop. Both are optional in
+  Settings → Shortcuts.
+- Shortcuts are left where the installer put them. Each one is handled once
+  and recorded in `AlcoolShortcuts.plist` inside the bottle, keyed by its path
+  relative to `drive_c`, so a Mac app the user deletes is not created again and
+  moving the bottle keeps the record valid.
+- Uninstallers, documentation, web links, `C:\windows` programs and
+  Squirrel-style `Update.exe` shortcuts are skipped.
+- A watcher checks every bottle every 3 seconds while Alcool runs, so the app
+  appears shortly after the installer writes the shortcut, whether or not that
+  bottle is open.
+
+Code: `WhiskyKit/.../Whisky/WindowsShortcuts.swift` and `MacShortcutRegistry.swift`
+(Foundation only, covered by `WindowsShortcutsTests`), and
+`Whisky/Utils/MacShortcutSync.swift` in the app.
+
+Importing or migrating a bottle mirrors its existing shortcuts once, the first
+time Alcool sees it.
+
+### Shortcut icons
+
+Shortcuts, whether made with Create Shortcut or automatically, take the icon from
+the executable's own resources (the same source as pinned programs) and carry it
+as `Contents/Resources/AppIcon.icns`. Upstream relied on a QuickLook thumbnail
+set as a Finder custom icon, which came out blank when the thumbnail extension
+wasn't registered, and which iCloud Desktop sync can drop.
+
+### Missing resources no longer crash the app
+
+Reading GameDB, crash patterns, troubleshooting flows or the Discord relay went
+through SwiftPM's `Bundle.module`, whose accessor calls `fatalError` when
+`WhiskyKit_WhiskyKit.bundle` can't be found. That happened when the app was
+moved while it was running, and the app crashed the first time a program page
+loaded GameDB. Resources are now read through `Bundle.whiskyKitResources`,
+which returns `nil` instead, and the loaders log the problem and carry on
+without that data, in debug builds too.
+
 ## Syncing with upstream
 
 ```bash

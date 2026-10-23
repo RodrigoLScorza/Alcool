@@ -45,6 +45,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
 
+        // Mirror shortcuts that installers create as Mac apps while the app runs
+        MacShortcutWatcher.shared.start()
+
         // Background cleanup of orphaned temp files from previous sessions
         Task.detached {
             await TempFileTracker.shared.cleanupOldFiles(olderThan: 24 * 60 * 60)

@@ -36,25 +36,28 @@ import Foundation
 /// try ShortcutCreator.createShortcutBundle(at: appURL, launchScript: script, name: "MyGame")
 /// ```
 public enum ShortcutCreator {
-    /// The Info.plist template for shortcut app bundles.
-    public static let infoPlist = """
-    <?xml version="1.0" encoding="UTF-8"?>
-    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-    <plist version="1.0">
-    <dict>
-        <key>CFBundleExecutable</key>
-        <string>launch</string>
-        <key>CFBundleSupportedPlatforms</key>
-        <array>
-            <string>MacOSX</string>
-        </array>
-        <key>LSMinimumSystemVersion</key>
-        <string>14.0</string>
-        <key>LSApplicationCategoryType</key>
-        <string>public.app-category.games</string>
-    </dict>
-    </plist>
-    """
+    /// The Info.plist of a shortcut app bundle.
+    ///
+    /// - Parameters:
+    ///   - name: The shortcut's display name, used as `CFBundleName`.
+    ///   - iconFileName: The `.icns` file in `Contents/Resources` that holds
+    ///     the shortcut's icon, without its extension, or `nil` for none.
+    /// - Returns: The property list, in XML format.
+    /// - Throws: If the property list cannot be serialized.
+    public static func infoPlist(name: String, iconFileName: String? = nil) throws -> Data {
+        var plist: [String: Any] = [
+            "CFBundleExecutable": "launch",
+            "CFBundleName": name,
+            "CFBundlePackageType": "APPL",
+            "CFBundleSupportedPlatforms": ["MacOSX"],
+            "LSMinimumSystemVersion": "14.0",
+            "LSApplicationCategoryType": "public.app-category.games"
+        ]
+        if let iconFileName {
+            plist["CFBundleIconFile"] = iconFileName
+        }
+        return try PropertyListSerialization.data(fromPropertyList: plist, format: .xml, options: 0)
+    }
 
     /// Creates a macOS `.app` bundle that launches a Windows program via Wine.
     ///
@@ -70,9 +73,16 @@ public enum ShortcutCreator {
     /// - Parameters:
     ///   - appURL: The destination URL for the `.app` bundle.
     ///   - launchScript: The shell command to execute when the app is launched.
-    ///   - name: The display name for the shortcut (used for logging).
+    ///   - name: The display name for the shortcut, written as `CFBundleName`.
+    ///   - iconFileName: The icon file the caller puts in `Contents/Resources`,
+    ///     without its `.icns` extension, or `nil` when the bundle has none.
     /// - Throws: An error if the bundle directories or files cannot be created.
-    public static func createShortcutBundle(at appURL: URL, launchScript: String, name: String) throws {
+    public static func createShortcutBundle(
+        at appURL: URL,
+        launchScript: String,
+        name: String,
+        iconFileName: String? = nil
+    ) throws {
         let contents = appURL.appending(path: "Contents")
         let macos = contents.appending(path: "MacOS")
 
@@ -89,11 +99,8 @@ public enum ShortcutCreator {
             ofItemAtPath: scriptUrl.path(percentEncoded: false)
         )
 
-        try infoPlist.write(
-            to: contents.appending(path: "Info").appendingPathExtension("plist"),
-            atomically: false,
-            encoding: .utf8
-        )
+        try infoPlist(name: name, iconFileName: iconFileName)
+            .write(to: contents.appending(path: "Info").appendingPathExtension("plist"))
     }
 }
 

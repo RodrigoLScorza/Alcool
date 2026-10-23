@@ -70,7 +70,7 @@ public actor DiscordPresence {
     /// The id a build was assembled with, if it was given one. The file is
     /// ignored by git, so a checkout has none and presence stays dark.
     private static var bundledClientID: String? {
-        guard let url = Bundle.module.url(
+        guard let url = Bundle.whiskyKitResources?.url(
             forResource: "client-id", withExtension: "txt", subdirectory: "Local"
         )
         else { return nil }

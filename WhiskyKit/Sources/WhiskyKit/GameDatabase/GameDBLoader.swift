@@ -17,12 +17,15 @@
 //
 
 import Foundation
+import os.log
 
 /// Loads game database entries from a bundled JSON resource.
 ///
 /// Follows the ``PatternLoader`` pattern: a caseless enum with static
 /// methods for loading from a URL or from the default bundled resource.
 public enum GameDBLoader {
+    private static let logger = Logger(subsystem: Bundle.whiskyBundleIdentifier, category: "GameDBLoader")
+
     /// The top-level container for ``GameDB.json``.
     private struct GameDBFile: Codable {
         let version: Int
@@ -45,14 +48,14 @@ public enum GameDBLoader {
     /// Loads the default bundled game database.
     ///
     /// Returns an empty array if the resource is missing or cannot be
-    /// decoded. In debug builds, a missing resource triggers a fatal error.
+    /// decoded. A missing resource is logged rather than fatal in every build:
+    /// it happens at runtime (an app moved while running can't find its
+    /// resources), so the app keeps working without GameDB matches. In debug
+    /// builds, a GameDB.json that fails to decode is still a fatal error.
     public static func loadDefaults() -> [GameDBEntry] {
-        guard let url = Bundle.module.url(forResource: "GameDB", withExtension: "json") else {
-            #if DEBUG
-            fatalError("Missing resource: GameDB.json in Bundle.module")
-            #else
+        guard let url = Bundle.whiskyKitResources?.url(forResource: "GameDB", withExtension: "json") else {
+            logger.error("Missing resource: GameDB.json; continuing without GameDB matches")
             return []
-            #endif
         }
         do {
             return try loadEntries(from: url)

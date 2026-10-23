@@ -26,6 +26,8 @@ struct SettingsView: View {
     @AppStorage("checkWhiskyWineUpdates") var checkWhiskyWineUpdates = true
     @AppStorage("defaultBottleLocation") var defaultBottleLocation = BottleData.defaultBottleDir
     @AppStorage("preferredTerminal") var preferredTerminal = "terminal"
+    @AppStorage(MacShortcutPreferences.enabledKey) var mirrorWindowsShortcuts = true
+    @AppStorage(MacShortcutPreferences.desktopKey) var mirrorWindowsShortcutsOnDesktop = true
     @AppStorage(Telemetry.consentDefaultsKey) private var telemetryConsentRaw: String = Telemetry.ConsentState
         .undecided.rawValue
 
@@ -68,6 +70,12 @@ struct SettingsView: View {
                         }
                     }
                 }
+            }
+            Section("settings.shortcuts") {
+                Toggle("settings.toggle.mirrorShortcuts", isOn: $mirrorWindowsShortcuts)
+                    .help("settings.toggle.mirrorShortcuts.help")
+                Toggle("settings.toggle.mirrorShortcutsDesktop", isOn: $mirrorWindowsShortcutsOnDesktop)
+                    .disabled(!mirrorWindowsShortcuts)
             }
             Section("settings.updates") {
                 Toggle("settings.toggle.whisky.updates", isOn: $whiskyUpdate)

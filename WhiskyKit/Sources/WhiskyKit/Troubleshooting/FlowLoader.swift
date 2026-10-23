@@ -42,11 +42,10 @@ public enum FlowLoader {
     ///
     /// - Returns: The decoded flow index, or `nil` if loading fails.
     public static func loadIndex() -> FlowIndex? {
-        guard let url = Bundle.module.url(forResource: "index", withExtension: "json") else {
-            logger.error("Missing resource: index.json in Bundle.module")
-            #if DEBUG
-            assertionFailure("Missing resource: index.json in Bundle.module")
-            #endif
+        guard let url = Bundle.whiskyKitResources?.url(forResource: "index", withExtension: "json") else {
+            // Logged, not asserted: a missing resource is a runtime condition
+            // (an app moved while running can't find its resources).
+            logger.error("Missing resource: index.json in WhiskyKit's resource bundle")
             return nil
         }
 
@@ -75,7 +74,7 @@ public enum FlowLoader {
     /// - Returns: The decoded flow definition, or `nil` if loading fails.
     public static func loadFlow(fileName: String) -> FlowDefinition? {
         let resourceName = (fileName as NSString).deletingPathExtension
-        guard let url = Bundle.module.url(forResource: resourceName, withExtension: "json") else {
+        guard let url = Bundle.whiskyKitResources?.url(forResource: resourceName, withExtension: "json") else {
             logger.error("Missing flow resource: \(fileName)")
             return nil
         }
@@ -130,7 +129,7 @@ public enum FlowLoader {
         var fragments: [String: FlowDefinition] = [:]
 
         for name in fragmentNames {
-            guard let url = Bundle.module.url(forResource: name, withExtension: "json") else {
+            guard let url = Bundle.whiskyKitResources?.url(forResource: name, withExtension: "json") else {
                 logger.warning("Missing fragment resource: \(name).json")
                 continue
             }

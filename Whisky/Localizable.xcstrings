@@ -73133,6 +73133,22 @@
         }
       }
     },
+    "settings.shortcuts" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shortcuts"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Atalhos"
+          }
+        }
+      }
+    },
     "settings.terminal" : {
       "localizations" : {
         "ar" : {
@@ -73721,6 +73737,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "加入選單列項目以啟動釘選的程式，並在關閉視窗後讓 Whisky 繼續執行。"
+          }
+        }
+      }
+    },
+    "settings.toggle.mirrorShortcuts" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create Mac apps for installed Windows programs"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Criar apps no Mac para programas do Windows instalados"
+          }
+        }
+      }
+    },
+    "settings.toggle.mirrorShortcuts.help" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "When an installer adds a shortcut to the Start Menu or Desktop, Alcool pins the program and adds a matching app to ~/Applications/Alcool, where Launchpad and Spotlight find it."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quando um instalador cria um atalho no Menu Iniciar ou na Área de Trabalho, o Alcool fixa o programa e cria um app correspondente em ~/Applications/Alcool, onde o Launchpad e o Spotlight o encontram."
+          }
+        }
+      }
+    },
+    "settings.toggle.mirrorShortcutsDesktop" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Also place them on the Desktop"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Também colocar na Mesa"
           }
         }
       }

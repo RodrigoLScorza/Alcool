@@ -39,7 +39,7 @@ public enum DiscordBridge {
 
     /// The bundled relay, or `nil` if the resource is missing from this build.
     public static var executableURL: URL? {
-        Bundle.module.url(forResource: executableName, withExtension: "exe")
+        Bundle.whiskyKitResources?.url(forResource: executableName, withExtension: "exe")
     }
 
     /// The arguments that run the relay in a bottle.
