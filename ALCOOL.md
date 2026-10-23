@@ -94,6 +94,39 @@ loaded GameDB. Resources are now read through `Bundle.whiskyKitResources`,
 which returns `nil` instead, and the loaders log the problem and carry on
 without that data, in debug builds too.
 
+### Sommelier: settings picked from what the program is
+
+Before every launch, Alcool reads the executable (never runs it) and gives the
+bottle what that kind of program is known to need. Reading takes a few
+milliseconds: the PE import and delay-load import tables, the .NET metadata
+`#Strings` heap, and the names of the files next to the executable.
+
+| Found | Done |
+| --- | --- |
+| WPF (.NET `PresentationFramework`/`PresentationCore`) | `HKCU\Software\Microsoft\Avalon.Graphics` `DisableHWAcceleration=1`, once per bottle, plus Arial, Times New Roman and Verdana copied from macOS. WPF draws through Direct3D 9, which lands on wined3d's OpenGL path and leaves the window white. |
+| WinForms | The same core fonts. |
+| Electron or CEF shell (`resources/app.asar`, or `icudtl.dat` with `.pak` files, and no Direct3D 11/12 at startup) | DXVK, when the backend is left on Recommended. Chromium draws nothing on DXMT. |
+| Easy Anti-Cheat, BattlEye, XIGNCODE3, GameGuard, PunkBuster, ACE | A warning in the run log. |
+| Direct3D 12 at startup without D3DMetal, or Direct3D 9 | A note in the run log. |
+
+Details that matter:
+
+- A Velopack stub is analysed through `current/<same name>.exe`, the program it starts.
+- Unity is recognised only by `<name>_Data`, and its renderer read from `UnityPlayer.dll`;
+  Unreal by `Binaries/Win64` with an `Engine` folder next to the project.
+- Delay-loaded DLLs only count when nothing is loaded at startup: Unity and Unreal
+  delay-load `d3d12.dll` next to their Direct3D 11 renderer.
+- Anti-cheats are looked for next to the executable and one folder up, but not in
+  shared folders such as `Program Files (x86)`, where Windows installs the EAC service.
+- A WPF registry value someone already set is left alone, and nothing is written when
+  `user.reg` can't be read. A failed import never fails the launch.
+- Nothing overrides a backend the user picked, or the plan of a game Steam launches.
+- What was done is written under the run log header as `Sommelier:` lines.
+
+Code: `WhiskyKit/.../Sommelier/` (reader, analyzer, advice, launch integration), called from
+`Wine.prepareProgramLaunch`; tests in `SommelierTests`, `SommelierLaunchTests` and the
+`SyntheticPE` builder.
+
 ## Syncing with upstream
 
 ```bash

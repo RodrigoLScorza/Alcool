@@ -217,6 +217,8 @@ public class Wine {
         /// The arguments `wine64` runs with: `start /unix` and the program, or
         /// `explorer /desktop=...` for a program that runs in a virtual desktop.
         let arguments: [String]
+        /// What the Sommelier did or found for this launch, as run log lines.
+        var sommelierNotes: [String] = []
     }
 
     /// Runs a Windows executable within a Wine bottle.
@@ -333,6 +335,7 @@ public class Wine {
         let (fileHandle, logFileURL) = try makeFileHandleWithURL()
         fileHandle.writeApplicationInfo()
         fileHandle.writeInfo(for: bottle)
+        fileHandle.writeSommelierNotes(launch.sommelierNotes)
 
         // Create a run log entry to track this session
         let programName = url.lastPathComponent
@@ -445,6 +448,13 @@ public class Wine {
         // like every Wine process it reconciles the user profile before starting.
         await syncCJKFontReplacements(bottle: bottle, importer: importer)
 
+        // What the program is decides some of what the bottle needs: WPF
+        // renders in software, Electron and CEF shells get DXVK. Also before
+        // any setting is read, for the same reason as the font aliases.
+        let sommelier = await applySommelier(
+            for: url, bottle: bottle, d3dMetalAvailable: builtinD3D12IsD3DMetal, importer: importer
+        )
+
         // The effective backend for this launch: a program-level override wins
         // over the bottle setting, and `.recommended` resolves to its concrete
         // backend. This decides which translation layer's files are deployed;
@@ -456,14 +466,16 @@ public class Wine {
         // the bottle's games do. Steered, every game started that way got DXVK's
         // set, `d3d12=` included (#276). The launcher keeps DXVK through its own
         // `AppDefaults` entry, written from the launcher's set.
+        //
+        // A program the launcher list doesn't know, such as an Electron
+        // launcher, is steered by what the Sommelier found in it.
         let launcher = LauncherType.detect(from: url)
         let steeredLauncher = overridesApplyToDescendants ? nil : launcher
+        let steeredBackend = overridesApplyToDescendants ? nil
+            : launcher.map { GraphicsBackendResolver.resolve(for: $0) } ?? sommelier.preferredBackend
         let effectiveBackendChoice = programOverrides?.graphicsBackend ?? bottle.settings.graphicsBackend
-        let effectiveBackend = if effectiveBackendChoice == .recommended {
-            steeredLauncher.map { GraphicsBackendResolver.resolve(for: $0) } ?? recommendedBackend
-        } else {
-            effectiveBackendChoice
-        }
+        let effectiveBackend = effectiveBackendChoice == .recommended
+            ? steeredBackend ?? recommendedBackend : effectiveBackendChoice
 
         // The bottle composes its overrides from its own resolution, which does
         // not know what is being launched, so pin the decision here or a
@@ -525,7 +537,8 @@ public class Wine {
 
         return PreparedLaunch(
             environment: wineEnvironment,
-            arguments: launchArguments(for: url, args: args, programOverrides: programOverrides)
+            arguments: launchArguments(for: url, args: args, programOverrides: programOverrides),
+            sommelierNotes: sommelier.notes.map(\.logLine)
         )
     }
 
