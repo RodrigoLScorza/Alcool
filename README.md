@@ -1,20 +1,14 @@
 <div align="center">
 
-  # Whisky 🥃
-  *Wine but a bit stronger*
+  # Alcool 🥃
+  *Run Windows games on your Mac*
 
-  > **Active community fork.** The original [whisky-app/whisky](https://github.com/whisky-app/whisky)
-  > was archived on April 9, 2025 with a final maintenance notice. This fork, maintained by
-  > [@frankea](https://github.com/frankea), continues development — addressing the backlog of
-  > upstream issues and adding new functionality. Not affiliated with the original project or
-  > getwhisky.app.
+  > **Alcool is a fork of [frankea/Whisky](https://github.com/frankea/Whisky)**, the active community
+  > continuation of the archived [whisky-app/whisky](https://github.com/whisky-app/whisky). It keeps
+  > Whisky's Wine runtime and GameDB and adds its own work on top — see [ALCOOL.md](ALCOOL.md) for
+  > what differs. Not affiliated with CodeWeavers, the Whisky project or getwhisky.app.
+  > Licensed under GPL-3.0, like Whisky.
 
-  ![](https://img.shields.io/github/actions/workflow/status/frankea/Whisky/CI.yml?style=for-the-badge&label=CI)
-  [![](https://img.shields.io/codecov/c/github/frankea/Whisky?style=for-the-badge&logo=codecov&label=Coverage&flag=whiskykit)](https://codecov.io/gh/frankea/Whisky)
-  [![](https://img.shields.io/github/downloads/frankea/Whisky/total?style=for-the-badge&logo=github&label=Downloads)](https://github.com/frankea/Whisky/releases)
-  [![](https://img.shields.io/github/downloads/frankea/Whisky/latest/total?style=for-the-badge&label=Latest)](https://github.com/frankea/Whisky/releases/latest)
-  [![](https://img.shields.io/github/issues/frankea/Whisky?style=for-the-badge)](https://github.com/frankea/Whisky/issues)
-  [![Documentation](https://img.shields.io/badge/Documentation-DocC-blue?style=for-the-badge)](https://frankea.github.io/Whisky/documentation/whiskykit/)
 </div>
 
 ## Overview

@@ -1,0 +1,56 @@
+# Alcool fork notes
+
+Alcool is a fork of [frankea/Whisky](https://github.com/frankea/Whisky). This file lists what
+differs from upstream so that syncing with upstream stays manageable.
+
+## Rebranding scope
+
+Only the surface changes. Internal names (`WhiskyKit`, `WhiskyCmd`, the `Whisky` Swift module,
+type names, the GameDB) stay as they are upstream, so upstream changes merge with few conflicts.
+
+| What | Upstream | Alcool |
+| --- | --- | --- |
+| App bundle | `Whisky.app` | `Alcool.app` (Swift module stays `Whisky`) |
+| Bundle ID | `com.franke.Whisky` | `com.rodrigoscorza.Alcool` |
+| CLI bundle ID | `com.franke.WhiskyCmd` | `com.rodrigoscorza.AlcoolCmd` |
+| Thumbnail extension | `com.franke.Whisky.WhiskyThumbnail` | `com.rodrigoscorza.Alcool.Thumbnail` |
+| Data folder | `~/Library/Application Support/com.franke.Whisky` | `~/Library/Application Support/com.rodrigoscorza.Alcool` |
+| URL scheme | `whisky://` | `alcool://` |
+| Shortcut launcher path | `/Applications/Whisky.app` | `/Applications/Alcool.app` |
+| Help menu and issue links | frankea/Whisky | RodrigoLScorza/Alcool |
+| Signing team | upstream's team | unset (each builder picks their own) |
+
+Because the bundle ID and data folder differ, Alcool and Whisky can be installed side by side
+without sharing bottles, settings or URL handling.
+
+## Turned off until Alcool has its own infrastructure
+
+- **Telemetry.** Upstream's PostHog project token was removed from `Whisky/Info.plist`.
+  `Telemetry.start()` treats a missing token as disabled, so nothing is sent even if a user
+  opts in. Add Alcool's own token here only once there is a privacy notice to go with it.
+- **Automatic app updates.** `SUFeedURL` points to `https://rodrigolscorza.github.io/Alcool/appcast.xml`
+  (not published yet) and `SUEnableAutomaticChecks` is `false`. Before the first release:
+  generate an EdDSA key pair with Sparkle's `generate_keys`, replace `SUPublicEDKey` in
+  `Whisky/Info.plist` (it still holds upstream's key), publish the appcast, then turn automatic
+  checks back on.
+
+## Still shared with upstream
+
+- **Wine runtime download.** `DistributionConfig` still fetches `WhiskyWineVersion.plist` and
+  `Libraries.tar.gz` from frankea/Whisky's GitHub Pages and Releases. Hosting Alcool's own
+  runtime is a later step.
+- **Release and Homebrew workflows** under `.github/workflows` target upstream's secrets and tap.
+  They stay inert on this fork until they are adapted.
+- **User-facing strings** in the localization catalogs still say "Whisky" in places, as do the
+  app icon and the Discord presence text. These change in a later pass, ideally without editing
+  every translation by hand.
+
+## Syncing with upstream
+
+```bash
+git remote add upstream https://github.com/frankea/Whisky.git
+git fetch upstream
+git merge upstream/main
+```
+
+Conflicts are expected only in the files listed above.
