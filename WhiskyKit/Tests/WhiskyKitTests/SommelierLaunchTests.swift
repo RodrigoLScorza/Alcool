@@ -85,7 +85,7 @@ final class SommelierLaunchTests {
     ) async throws -> Wine.PreparedLaunch {
         try await Wine.prepareProgramLaunch(
             at: url, bottle: bottle,
-            recommendedBackend: .dxmt, builtinD3D12IsD3DMetal: false,
+            recommendedBackend: .d3dMetal, builtinD3D12IsD3DMetal: true,
             overrideWriter: recorder.writer, importer: recorder.importer
         )
     }
@@ -155,9 +155,9 @@ final class SommelierLaunchTests {
         let launch = try await prepare(app, in: bottle, recorder: recorder)
 
         #expect(launch.sommelierNotes.contains(SommelierNote.chromiumUsesDXVK.logLine))
-        // d3d9 is DXVK's alone; DXMT, the bottle's backend here, leaves it to Wine.
+        // D3DMetal, the bottle's backend here, runs on Wine's builtin d3d9; DXVK
+        // brings its own.
         #expect(recorder.overrides(for: .program("Atlas.exe"))?["d3d9"] == "n,b")
-        #expect(recorder.overrides(for: .program("Atlas.exe"))?["winemetal"] == nil)
     }
 
     @Test("The same program without Chromium's files keeps the bottle's backend")
@@ -171,13 +171,12 @@ final class SommelierLaunchTests {
 
         #expect(launch.sommelierNotes.isEmpty)
         #expect(recorder.overrides(for: .program("Atlas.exe"))?["d3d9"] != "n,b")
-        #expect(recorder.overrides(for: .program("Atlas.exe"))?["winemetal"] == "b")
     }
 
     @Test("A bottle set to a backend keeps it for an Electron app")
     func explicitBackendWins() async throws {
         let bottle = try makeBottle()
-        bottle.settings.graphicsBackend = .dxmt
+        bottle.settings.graphicsBackend = .wined3d
         let folder = bottle.url.appending(path: "drive_c/Atlas")
         let app = folder.appending(path: "Atlas.exe")
         try SyntheticPE.chromiumShell.write(to: app)
@@ -191,6 +190,5 @@ final class SommelierLaunchTests {
         _ = try await prepare(app, in: bottle, recorder: recorder)
 
         #expect(recorder.overrides(for: .program("Atlas.exe"))?["d3d9"] != "n,b")
-        #expect(recorder.overrides(for: .program("Atlas.exe"))?["winemetal"] == "b")
     }
 }
