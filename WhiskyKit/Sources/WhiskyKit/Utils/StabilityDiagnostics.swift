@@ -93,7 +93,7 @@ public enum StabilityDiagnostics {
         let appVersion = config.bundle.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
         let buildNumber = config.bundle.infoDictionary?["CFBundleVersion"] as? String ?? ""
         if !appVersion.isEmpty {
-            info += "Whisky Version: \(appVersion)\(buildNumber.isEmpty ? "" : " (\(buildNumber))")\n"
+            info += "Alcool Version: \(appVersion)\(buildNumber.isEmpty ? "" : " (\(buildNumber))")\n"
         }
 
         if let whiskyWineVersion = WhiskyWineInstaller.whiskyWineVersion() {

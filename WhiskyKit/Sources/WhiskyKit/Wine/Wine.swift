@@ -1394,7 +1394,7 @@ public extension Wine {
     /// Marker appended once when file logging begins truncation.
     ///
     /// - Important: This marker is written at most once per log file and counts toward `maxLogFileBytes`.
-    static let logTruncationMarker = "\n[Whisky] Log truncated: reached 20 MiB cap; further output discarded.\n"
+    static let logTruncationMarker = "\n[Alcool] Log truncated: reached 20 MiB cap; further output discarded.\n"
 
     /// The URL to the directory where Wine process logs are stored.
     ///

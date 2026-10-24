@@ -26,7 +26,7 @@ final class DiagnosticReportTests: XCTestCase {
         let diagnosis = makeSampleDiagnosis(headline: "DLL Load Failure: MSVCR100.dll")
         let markdown = generateTestMarkdown(diagnosis: diagnosis)
 
-        XCTAssertTrue(markdown.contains("## Whisky Diagnostic Report"))
+        XCTAssertTrue(markdown.contains("## Alcool Diagnostic Report"))
         XCTAssertTrue(markdown.contains("DLL Load Failure: MSVCR100.dll"))
     }
 
@@ -81,7 +81,7 @@ final class DiagnosticReportTests: XCTestCase {
         )
         let markdown = generateTestMarkdown(diagnosis: diagnosis)
 
-        XCTAssertTrue(markdown.contains("## Whisky Diagnostic Report"))
+        XCTAssertTrue(markdown.contains("## Alcool Diagnostic Report"))
         XCTAssertTrue(markdown.contains("### System Info"))
         XCTAssertTrue(markdown.contains("### Diagnosis Summary"))
     }
@@ -136,7 +136,7 @@ final class DiagnosticReportTests: XCTestCase {
     }
 
     private func generateTestMarkdown(diagnosis: CrashDiagnosis) -> String {
-        var markdown = "## Whisky Diagnostic Report\n\n"
+        var markdown = "## Alcool Diagnostic Report\n\n"
         markdown += "**Generated:** \(Date().formatted())\n\n"
 
         markdown += "### System Info\n\n"

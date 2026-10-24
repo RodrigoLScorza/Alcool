@@ -160,6 +160,9 @@ struct WhiskyApp: App {
         }
         .handlesExternalEvents(matching: ["*"])
         .commands {
+            CommandGroup(replacing: .appInfo) {
+                AboutCommand()
+            }
             CommandGroup(after: .appInfo) {
                 SparkleView(updater: updaterController.updater)
             }
@@ -238,7 +241,12 @@ struct WhiskyApp: App {
         Settings {
             SettingsView()
         }
-        MenuBarExtra("Whisky", systemImage: "wineglass", isInserted: $showMenuBarExtra) {
+        Window("about.window", id: AboutView.windowID) {
+            AboutView()
+        }
+        .windowResizability(.contentSize)
+        .defaultPosition(.center)
+        MenuBarExtra("Alcool", systemImage: "flask", isInserted: $showMenuBarExtra) {
             WhiskyMenuBarView()
                 .environmentObject(BottleVM.shared)
         }
