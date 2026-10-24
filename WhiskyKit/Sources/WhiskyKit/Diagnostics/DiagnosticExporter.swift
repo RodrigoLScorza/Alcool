@@ -133,7 +133,7 @@ public enum DiagnosticExporter {
         program: Program,
         options: ExportOptions
     ) -> String {
-        var markdown = "## Whisky Diagnostic Report\n\n"
+        var markdown = "## Alcool Diagnostic Report\n\n"
         markdown += "**Generated:** \(Date().formatted())\n\n"
 
         markdown += generateSystemInfoSection()
@@ -317,12 +317,12 @@ extension DiagnosticExporter {
         let bottleName = sanitizeName(context.bottle.settings.name)
         let programName = sanitizeName(context.program.name)
         let dateString = formatDateForFilename(Date())
-        let zipFilename = "Whisky-Diagnostics-\(bottleName)-\(programName)-\(dateString).zip"
+        let zipFilename = "Alcool-Diagnostics-\(bottleName)-\(programName)-\(dateString).zip"
 
         let tempDir = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         let contentDir = tempDir.appendingPathComponent(
-            "Whisky-Diagnostics-\(bottleName)-\(programName)",
+            "Alcool-Diagnostics-\(bottleName)-\(programName)",
             isDirectory: true
         )
         let zipURL = tempDir.appendingPathComponent(zipFilename)
