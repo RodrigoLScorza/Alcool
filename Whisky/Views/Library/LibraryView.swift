@@ -36,6 +36,8 @@ struct LibraryView: View {
     /// because the bottle list is unchanged by a refresh, so watching only that
     /// left the button spinning without rebuilding anything.
     @Binding var refresh: Bool
+    /// Shows the install screen.
+    let openInstall: () -> Void
 
     @AppStorage("librarySort") private var sort: LibrarySort = .recent
 
@@ -98,12 +100,11 @@ struct LibraryView: View {
     /// is the toolbar's one prominent control.
     private var installItem: some ToolbarContent {
         ToolbarItem(placement: .primaryAction) {
-            InstallGameButton(bottles: bottles, install: model.install(in:)) {
+            Button(action: openInstall) {
                 Label("library.install", systemImage: "plus")
                     .labelStyle(.titleAndIcon)
             }
             .buttonStyle(.borderedProminent)
-            .disabled(bottles.isEmpty)
             .accessibilityIdentifier("library.install")
         }
     }
@@ -175,7 +176,7 @@ struct LibraryView: View {
                 .contextMenu { menu(for: row) }
             }
             if search.isEmpty {
-                AddGameCard(bottles: bottles, install: model.install(in:))
+                AddGameCard(action: openInstall)
             }
         }
     }
@@ -215,9 +216,10 @@ struct LibraryView: View {
         } description: {
             Text(bottles.isEmpty ? "library.empty.noBottle" : "library.empty.noPrograms")
         } actions: {
+            Button("library.install", action: openInstall)
+                .buttonStyle(.borderedProminent)
             if let first = bottles.first {
                 Button("library.empty.pinHint") { selectedBottle = first.url }
-                    .buttonStyle(.borderedProminent)
             }
         }
     }
