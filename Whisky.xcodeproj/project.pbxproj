@@ -302,7 +302,7 @@
 		C1A2B3C4E5F60601A9B0C1D9 /* AudioConfigSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioConfigSection.swift; sourceTree = "<group>"; };
 		C1A2B3C4E5F60601A9B0F2D9 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LibraryView.swift; path = Whisky/Views/Library/LibraryView.swift; sourceTree = SOURCE_ROOT; };
 		C1A2B3C4E5F60601A9B0F1D9 /* LibraryCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LibraryCard.swift; path = Whisky/Views/Library/LibraryCard.swift; sourceTree = SOURCE_ROOT; };
-		BC2C7E6CC3A76D71ADA744D2 /* LibraryHero.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryHero.swift; sourceTree = "<group>"; };
+		BC2C7E6CC3A76D71ADA744D2 /* LibraryHero.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = LibraryHero.swift; path = Whisky/Views/Library/LibraryHero.swift; sourceTree = SOURCE_ROOT; };
 		C1A2B3C4E5F60601A9B0D1D9 /* DiscordConfigSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscordConfigSection.swift; sourceTree = "<group>"; };
 		C1A2B3C4E5F60601A9B0C2D1 /* AudioTroubleshootingWizardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioTroubleshootingWizardView.swift; sourceTree = "<group>"; };
 		C1A2B3C4E5F60601A9B0C2D3 /* AudioDeviceListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioDeviceListView.swift; sourceTree = "<group>"; };
