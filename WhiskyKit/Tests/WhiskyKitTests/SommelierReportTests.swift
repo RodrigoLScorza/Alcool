@@ -51,6 +51,9 @@ struct SommelierReportTests {
 
         #expect(analysis.productName == "Magic Wings")
         #expect(analysis.versionStrings["CompanyName"] == "Juice Games")
+        let report = try #require(SommelierReportStore.report(for: url, bottleURL: bottleURL))
+        #expect(report.productName == "Magic Wings")
+        #expect(report.companyName == "Juice Games")
         // The .NET metadata is read as before, next to the resources.
         #expect(analysis.usesWPF)
     }

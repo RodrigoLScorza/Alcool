@@ -27,6 +27,8 @@ public struct SommelierReport: Codable, Equatable, Sendable {
     public var modified: Date
 
     public var productName: String?
+    /// The version resource's `CompanyName`.
+    public var companyName: String?
     public var engine: GameEngine?
     /// The API it most likely renders with; `nil` for a Chromium shell, whose
     /// renderer is picked at run time.
@@ -46,6 +48,7 @@ public struct SommelierReport: Codable, Equatable, Sendable {
         self.fileSize = fileSize
         self.modified = modified
         productName = analysis.productName
+        companyName = analysis.versionStrings["CompanyName"]
         engine = analysis.engine
         graphicsAPI = analysis.isChromiumApp ? nil : analysis.primaryGraphicsAPI
         dotNetRuntime = analysis.dotNetRuntimeVersion
