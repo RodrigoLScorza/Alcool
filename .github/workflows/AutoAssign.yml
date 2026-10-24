@@ -16,6 +16,8 @@ permissions:
 jobs:
   assign:
     name: Assign
+    # Upstream infrastructure (frankea's secrets, tap, Pages); inert on forks such as Alcool.
+    if: github.repository_owner == 'frankea'
     runs-on: ubuntu-latest
     steps:
       - name: Assign to maintainers

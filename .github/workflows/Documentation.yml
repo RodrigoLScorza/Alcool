@@ -26,6 +26,8 @@ env:
 jobs:
   build-docs:
     name: Build Documentation
+    # Upstream infrastructure (frankea's secrets, tap, Pages); inert on forks such as Alcool.
+    if: github.repository_owner == 'frankea'
     # macos-15, same as CI: latest-stable Xcode on macos-14 is a generation
     # older, and its SDK predates Sendable annotations the kit now relies on
     # (NSImage in IconCache), so the docs build fails where CI passes.

@@ -10,6 +10,8 @@ permissions:
 jobs:
   release:
     name: Release
+    # Upstream infrastructure (frankea's secrets, tap, Pages); inert on forks such as Alcool.
+    if: github.repository_owner == 'frankea'
     runs-on: ubuntu-latest
     steps:
       # The official Homebrew cask `whisky` tracks the original (archived) Whisky

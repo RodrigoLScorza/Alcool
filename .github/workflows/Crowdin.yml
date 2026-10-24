@@ -23,6 +23,8 @@ concurrency:
 jobs:
   synchronize:
     name: Sync with Crowdin
+    # Upstream infrastructure (frankea's secrets, tap, Pages); inert on forks such as Alcool.
+    if: github.repository_owner == 'frankea'
     runs-on: ubuntu-latest
     steps:
       # Stays dormant until the maintainer adds the Crowdin secrets, so the

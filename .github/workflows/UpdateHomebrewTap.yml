@@ -23,7 +23,8 @@ permissions:
 jobs:
   update-tap:
     # Only app releases; the Wine Libraries stream uses bare vX.Y.Z tags and has no cask.
-    if: ${{ github.event_name == 'workflow_dispatch' || startsWith(github.event.release.tag_name, 'app-v') }}
+    # Upstream infrastructure (frankea's secrets, tap, Pages); inert on forks such as Alcool.
+    if: ${{ github.repository_owner == 'frankea' && (github.event_name == 'workflow_dispatch' || startsWith(github.event.release.tag_name, 'app-v')) }}
     runs-on: ubuntu-latest
     steps:
       - name: Bump cask to the released version

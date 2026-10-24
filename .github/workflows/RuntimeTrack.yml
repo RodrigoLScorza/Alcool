@@ -38,6 +38,8 @@ env:
 jobs:
   track:
     name: Check runtime upstreams
+    # Upstream infrastructure (frankea's secrets, tap, Pages); inert on forks such as Alcool.
+    if: github.repository_owner == 'frankea'
     runs-on: ubuntu-latest
     steps:
       - name: Compare pinned vs latest and open an issue on drift

@@ -39,8 +39,13 @@ without sharing bottles, settings or URL handling.
 - **Wine runtime download.** `DistributionConfig` still fetches `WhiskyWineVersion.plist` and
   `Libraries.tar.gz` from frankea/Whisky's GitHub Pages and Releases. Hosting Alcool's own
   runtime is a later step.
-- **Release and Homebrew workflows** under `.github/workflows` target upstream's secrets and tap.
-  They stay inert on this fork until they are adapted.
+- **GitHub Actions.** CI (SwiftLint, SwiftFormat, en-GB coverage, build and tests on macOS) and
+  SecretScan run on this repository as they do upstream. The workflows that need upstream's
+  infrastructure — AutoAssign, Crowdin, Documentation (GitHub Pages), Release, RuntimeTrack and
+  UpdateHomebrewTap — have their jobs guarded with `github.repository_owner == 'frankea'`, so they
+  stay inert here and keep working upstream. TriageCommands only answers upstream's maintainers.
+  Remove a guard when Alcool gets its own version of that piece (translations, docs site,
+  releases, runtime tracking).
 - **User-facing strings** in the localization catalogs still say "Whisky" in places, as do the
   app icon and the Discord presence text. These change in a later pass, ideally without editing
   every translation by hand.
