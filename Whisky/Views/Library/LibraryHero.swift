@@ -139,35 +139,12 @@ struct LibraryHero: View {
     }
 }
 
-/// Starts installing a game: a plain button with one bottle, a menu of the
-/// bottles to install into with several.
-struct InstallGameButton<Content: View>: View {
-    let bottles: [Bottle]
-    let install: @MainActor (Bottle) -> Void
-    @ViewBuilder let label: () -> Content
-
-    var body: some View {
-        if bottles.count == 1, let bottle = bottles.first {
-            Button { install(bottle) } label: { label() }
-        } else {
-            Menu {
-                ForEach(bottles) { bottle in
-                    Button(bottle.settings.name) { install(bottle) }
-                }
-            } label: {
-                label()
-            }
-        }
-    }
-}
-
 /// The last card of the grid: the way to put another game in it.
 struct AddGameCard: View {
-    let bottles: [Bottle]
-    let install: @MainActor (Bottle) -> Void
+    let action: () -> Void
 
     var body: some View {
-        InstallGameButton(bottles: bottles, install: install) {
+        Button(action: action) {
             VStack(spacing: 10) {
                 Image(systemName: "plus")
                     .font(.system(size: 22, weight: .semibold))
@@ -184,7 +161,5 @@ struct AddGameCard: View {
             .contentShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         }
         .buttonStyle(.plain)
-        .menuStyle(.button)
-        .menuIndicator(.hidden)
     }
 }

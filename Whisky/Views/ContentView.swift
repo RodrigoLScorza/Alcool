@@ -27,6 +27,8 @@ struct ContentView: View {
     @Binding var showSetup: Bool
 
     @State var selected: URL?
+    /// The install screen, which is no bottle's and not the library.
+    @State var showInstall: Bool = false
     @State var showBottleCreation: Bool = false
     @State var bottlesLoaded: Bool = false
     @State var showBottleSelection: Bool = false

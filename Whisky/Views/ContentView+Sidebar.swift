@@ -29,6 +29,7 @@ extension ContentView {
             List(selection: $selected) {
                 Section {
                     libraryRow
+                    installRow
                 }
                 // A bottle is a Wine prefix, so it belongs under a heading rather
                 // than being the whole sidebar. With one bottle this is the row
@@ -77,6 +78,11 @@ extension ContentView {
             }
             .animation(.default, value: bottleVM.bottles)
             .listStyle(.sidebar)
+            .onChange(of: selected) { _, bottle in
+                if bottle != nil {
+                    showInstall = false
+                }
+            }
             .accessibilityIdentifier("bottleSidebar")
             // No search field here. The library has one, and two fields forty
             // points apart searching different things (bottles here, programs
@@ -98,6 +104,7 @@ extension ContentView {
     var libraryRow: some View {
         Button {
             selected = nil
+            showInstall = false
         } label: {
             Label("library.title", systemImage: "square.grid.2x2")
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -106,38 +113,50 @@ extension ContentView {
         .buttonStyle(.plain)
         .listRowBackground(
             RoundedRectangle(cornerRadius: 6, style: .continuous)
-                .fill(selected == nil ? AnyShapeStyle(.selection) : AnyShapeStyle(.clear))
+                .fill(selected == nil && !showInstall ? AnyShapeStyle(.selection) : AnyShapeStyle(.clear))
         )
         .accessibilityIdentifier("sidebar.library")
     }
 
+    /// Installing gets a place of its own: it is the second thing anyone does
+    /// here, and the first thing a new user does.
+    var installRow: some View {
+        Button {
+            selected = nil
+            showInstall = true
+        } label: {
+            Label("sidebar.install", systemImage: "square.and.arrow.down")
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .listRowBackground(
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                .fill(showInstall ? AnyShapeStyle(.selection) : AnyShapeStyle(.clear))
+        )
+        .accessibilityIdentifier("sidebar.install")
+    }
+
     @ViewBuilder
     var detail: some View {
-        if let bottle = selected {
+        if showInstall {
+            InstallView(openLibrary: { showInstall = false })
+        } else if let bottle = selected {
             if let bottle = bottleVM.bottles.first(where: { $0.url == bottle }) {
                 BottleView(bottle: bottle)
                     .disabled(bottle.inFlight)
                     .id(bottle.url)
             }
         } else if bottleVM.countActive() > 0 {
-            LibraryView(selectedBottle: $selected, refresh: $triggerRefresh)
-        } else {
-            if bottleVM.bottles.isEmpty || bottleVM.countActive() == 0, bottlesLoaded {
-                VStack {
-                    Text("main.createFirst")
-                    Button {
-                        showBottleCreation.toggle()
-                    } label: {
-                        HStack {
-                            Image(systemName: "plus")
-                            Text("button.createBottle")
-                        }
-                        .padding(6)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.accentColor)
-                }
-            }
+            LibraryView(
+                selectedBottle: $selected,
+                refresh: $triggerRefresh,
+                openInstall: { showInstall = true }
+            )
+        } else if bottlesLoaded {
+            // Nothing to play yet: the first thing to do is install something,
+            // and installing makes the bottle it needs.
+            InstallView(openLibrary: { showInstall = false })
         }
     }
 
