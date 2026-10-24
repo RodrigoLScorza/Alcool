@@ -128,7 +128,21 @@ Details that matter:
 - Nothing overrides a backend the user picked, or the plan of a game Steam launches.
 - What was done is written under the run log header as `Sommelier:` lines.
 
-Code: `WhiskyKit/.../Sommelier/` (reader, analyzer, advice, launch integration), called from
+What the Sommelier knows is visible in the app:
+
+- **Program page:** a Sommelier section at the top with the product name (from the executable's
+  version resource), engine, graphics API, .NET runtime, the adjustments it applies, warnings, and
+  the last launch.
+- **Library:** pinned programs get a badge: *Auto-adjusted*, *Anti-cheat* or *Needs D3DMetal*.
+- **Banner:** the first time a program's launch gets an adjustment or a warning.
+- Reports are kept per program in `Sommelier.plist` at the bottle's root, keyed by the path under
+  `drive_c`, and made again when the executable's size or date changes.
+- One program reached by several paths (a Velopack stub and its `current/` program, or a profile
+  folder linked under another user name) is pinned and listed once
+  (`ExecutableAnalyzer.programIdentity(of:)`), and a pin or Mac app named like a file
+  ("MagicWings.Launcher") takes the product name ("Magic Wings").
+
+Code: `WhiskyKit/.../Sommelier/` (reader, analyzer, advice, reports, launch integration), called from
 `Wine.prepareProgramLaunch`; tests in `SommelierTests`, `SommelierLaunchTests` and the
 `SyntheticPE` builder.
 
