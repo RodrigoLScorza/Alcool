@@ -19,7 +19,14 @@ mas é gratuito e de código aberto. Você solta um instalador nele e o jogo apa
 biblioteca, na Mesa e no Launchpad. Bottles, Winetricks e substituições de DLL continuam
 lá, um nível abaixo, para quando você precisar.
 
-<!-- Capturas: images/alcool-library.png, images/alcool-install.png, images/alcool-program.png -->
+<p align="center">
+  <img width="720" alt="A biblioteca de jogos: o último jogo no topo, com o botão Jogar" src="./images/alcool-library.png">
+</p>
+
+<p align="center">
+  <img width="360" alt="A tela Instalar: solte o instalador e o Alcool cuida do resto" src="./images/alcool-install.png">
+  <img width="360" alt="Uma Bottle, com Winetricks, terminal e disco C: a um clique" src="./images/alcool-bottle.png">
+</p>
 
 ## O que ele faz de diferente
 

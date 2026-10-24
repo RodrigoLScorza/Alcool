@@ -21,7 +21,14 @@ free and open source. You drop an installer on it and get the game in a library,
 on your Desktop and in Launchpad. Bottles, Winetricks and DLL overrides are all
 still there, one level down, for when you need them.
 
-<!-- Screenshots: images/alcool-library.png, images/alcool-install.png, images/alcool-program.png -->
+<p align="center">
+  <img width="720" alt="The Games library: the game played last on top, with a Play button" src="./images/alcool-library.png">
+</p>
+
+<p align="center">
+  <img width="360" alt="The Install screen: drop an installer and Alcool does the rest" src="./images/alcool-install.png">
+  <img width="360" alt="A bottle, with Winetricks, the terminal and the C: drive one click away" src="./images/alcool-bottle.png">
+</p>
 
 ## What it does differently
 
