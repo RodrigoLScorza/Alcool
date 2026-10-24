@@ -47,6 +47,9 @@ struct LibraryRow: Identifiable {
     let lastPlayed: Date?
     /// What the Sommelier says about a pinned program; `nil` for a Steam game.
     var badge: SommelierBadge?
+    /// A better name than the pin's, when the pin is named like a file and
+    /// the executable names its product.
+    var title: String?
 
     var id: String { item.id }
 }
@@ -124,13 +127,21 @@ final class LibraryModel: ObservableObject {
             let pinned = PinnedLibrarySource.items(inBottleAt: url, settings: bottle.settings)
             let steam = await Task.detached { SteamLibrarySource.entries(inBottleAt: url) }.value
 
+            // Pins of one program by two paths (a Velopack stub and the
+            // `current/` program it starts) show once, as the first pin.
+            var targets: Set<String> = []
             for item in LibraryCatalogue.merge([pinned, steam]) {
-                await built.append(
+                let sommelier = await sommelierInfo(for: item, d3dMetalAvailable: d3dMetalAvailable)
+                if let target = sommelier.target, !targets.insert(target).inserted {
+                    continue
+                }
+                built.append(
                     LibraryRow(
                         item: item,
                         bottleName: showBottleName ? bottle.settings.name : nil,
                         lastPlayed: lastPlayed(for: item, routed: routed),
-                        badge: sommelierBadge(for: item, d3dMetalAvailable: d3dMetalAvailable)
+                        badge: sommelier.badge,
+                        title: sommelier.title
                     )
                 )
             }
@@ -141,14 +152,31 @@ final class LibraryModel: ObservableObject {
         rows = sorted(built)
     }
 
-    /// The Sommelier's badge for a pinned program. Off the main actor: a
-    /// program without a report yet is analysed, which reads its executable.
-    private func sommelierBadge(for item: LibraryEntry, d3dMetalAvailable: Bool) async -> SommelierBadge? {
-        guard case let .program(url) = item.launch else { return nil }
+    /// The Sommelier's badge and name for a pinned program, and the program
+    /// it launches, lowercased. Off the main actor: a program without a
+    /// report yet is analysed, which reads its executable.
+    private func sommelierInfo(for item: LibraryEntry, d3dMetalAvailable: Bool) async -> SommelierInfo {
+        guard case let .program(url) = item.launch else { return SommelierInfo() }
         let bottleURL = item.bottleURL
+        let name = item.name
         return await Task.detached(priority: .utility) {
-            SommelierReportStore.report(for: url, bottleURL: bottleURL)?.badge(d3dMetalAvailable: d3dMetalAvailable)
+            let report = SommelierReportStore.report(for: url, bottleURL: bottleURL)
+            let title = WindowsShortcuts.preferredName(
+                shortcutName: name, executableURL: url, productName: report?.productName
+            )
+            return SommelierInfo(
+                badge: report?.badge(d3dMetalAvailable: d3dMetalAvailable),
+                title: title == name ? nil : title,
+                target: ExecutableAnalyzer.launchTarget(of: url).path(percentEncoded: false).lowercased()
+            )
         }.value
+    }
+
+    /// What ``sommelierInfo(for:d3dMetalAvailable:)`` found for a library entry.
+    private struct SommelierInfo: Sendable {
+        var badge: SommelierBadge?
+        var title: String?
+        var target: String?
     }
 
     /// When an entry was last started in Whisky.

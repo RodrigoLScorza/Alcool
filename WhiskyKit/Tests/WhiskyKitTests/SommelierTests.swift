@@ -135,6 +135,10 @@ struct SommelierTests {
         #expect(analysis.url.lastPathComponent == "App.exe")
         #expect(analysis.url.deletingLastPathComponent().lastPathComponent == "current")
         #expect(analysis.usesWPF)
+        // The stub and the program it starts are one program; anything else is itself.
+        let stub = root.appending(path: "App/App.exe")
+        #expect(ExecutableAnalyzer.launchTarget(of: stub) == root.appending(path: "App/current/App.exe"))
+        #expect(ExecutableAnalyzer.launchTarget(of: analysis.url) == analysis.url)
     }
 
     @Test("An Electron app is steered to DXVK and its renderer isn't named")

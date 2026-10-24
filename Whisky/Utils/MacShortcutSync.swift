@@ -166,8 +166,14 @@ enum MacShortcutSync {
             return false
         }
 
+        // A Velopack stub and the `current/` program it starts are one program,
+        // whichever of the two a pin or a shortcut points at.
+        let target = ExecutableAnalyzer.launchTarget(of: program.url).path(percentEncoded: false)
         let alreadyPinned = bottle.settings.pins.contains { existing in
-            existing.url?.path(percentEncoded: false).caseInsensitiveCompare(path) == .orderedSame
+            guard let url = existing.url else { return false }
+            return url.path(percentEncoded: false).caseInsensitiveCompare(path) == .orderedSame
+                || ExecutableAnalyzer.launchTarget(of: url).path(percentEncoded: false)
+                .caseInsensitiveCompare(target) == .orderedSame
         }
         guard !alreadyPinned else { return false }
         bottle.settings.pins.append(PinnedProgram(name: name, url: program.url))

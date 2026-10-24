@@ -179,17 +179,10 @@ public enum ExecutableAnalyzer {
     ///
     /// - Throws: If `url` is not a readable PE file.
     public static func analyze(url: URL) throws -> ExecutableAnalysis {
-        let fileManager = FileManager.default
         let folder = url.deletingLastPathComponent()
         let entries = lowercasedEntries(of: folder)
 
-        // Velopack installs a native stub that starts `current/<same name>`;
-        // the program worth analysing is the one it starts.
-        var target = url
-        let delegate = folder.appending(path: "current").appending(path: url.lastPathComponent)
-        if entries.contains("current"), fileManager.fileExists(atPath: delegate.path(percentEncoded: false)) {
-            target = delegate
-        }
+        let target = launchTarget(of: url)
 
         let facts = try PortableExecutableReader.read(url: target)
         var analysis = ExecutableAnalysis(url: target)
@@ -232,6 +225,16 @@ public enum ExecutableAnalyzer {
         analysis.isChromiumApp = startupAPIs.isDisjoint(with: [.direct3D11, .direct3D12])
             && isChromiumFolder(targetFolder, entries: targetEntries)
         return analysis
+    }
+
+    /// The executable that does the work when `url` runs.
+    ///
+    /// Velopack installs a native stub that starts `current/<same name>`, so
+    /// for a stub this is the program it starts; for anything else, `url`. Two
+    /// paths with the same target are the same program.
+    public static func launchTarget(of url: URL) -> URL {
+        let delegate = url.deletingLastPathComponent().appending(path: "current").appending(path: url.lastPathComponent)
+        return FileManager.default.fileExists(atPath: delegate.path(percentEncoded: false)) ? delegate : url
     }
 
     /// Folders that hold many programs rather than one program's files.

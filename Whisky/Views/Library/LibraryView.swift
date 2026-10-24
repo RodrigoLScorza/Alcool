@@ -46,7 +46,7 @@ struct LibraryView: View {
 
     private var visible: [LibraryRow] {
         guard !search.isEmpty else { return model.rows }
-        return model.rows.filter { $0.item.name.localizedCaseInsensitiveContains(search) }
+        return model.rows.filter { ($0.title ?? $0.item.name).localizedCaseInsensitiveContains(search) }
     }
 
     /// Every input that changes what the grid should contain. Pins live in
@@ -123,6 +123,7 @@ struct LibraryView: View {
                         lastPlayed: row.lastPlayed,
                         state: model.state(for: row.item),
                         badge: row.badge,
+                        displayName: row.title,
                         launch: { model.launch(row, bottles: bottles) }
                     )
                     .contextMenu { menu(for: row) }

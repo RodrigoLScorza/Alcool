@@ -51,6 +51,8 @@ struct LibraryCard: View {
     let state: LibraryEntryState
     /// What the Sommelier says about the program, shown while it is idle.
     var badge: SommelierBadge?
+    /// A better name than the entry's own (see ``LibraryRow/title``).
+    var displayName: String?
     let launch: () -> Void
 
     @State private var icon: Image?
@@ -73,7 +75,7 @@ struct LibraryCard: View {
 
     /// A launcher is named by what it is. A pin takes its name from the
     /// executable, which is how the Steam client ends up on screen as "steam".
-    private var title: String { item.launcher?.displayName ?? item.name }
+    private var title: String { item.launcher?.displayName ?? displayName ?? item.name }
 
     var body: some View {
         Button(action: launch) {
