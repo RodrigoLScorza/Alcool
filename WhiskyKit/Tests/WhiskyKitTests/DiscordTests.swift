@@ -109,7 +109,7 @@ struct DiscordPresenceTests {
         #expect(json.contains(#""start":1700000000"#))
         #expect(json.contains(#""pid":"#))
         // Discord reads snake_case; a camelCase key is silently ignored.
-        #expect(json.contains(#""large_image":"whisky""#))
+        #expect(json.contains(#""large_image":"alcool""#))
     }
 
     @Test("Clearing sends an explicit null activity, not an absent one")
