@@ -139,6 +139,23 @@ struct SommelierTests {
         let stub = root.appending(path: "App/App.exe")
         #expect(ExecutableAnalyzer.launchTarget(of: stub) == root.appending(path: "App/current/App.exe"))
         #expect(ExecutableAnalyzer.launchTarget(of: analysis.url) == analysis.url)
+        #expect(ExecutableAnalyzer.programIdentity(of: stub) == ExecutableAnalyzer.programIdentity(of: analysis.url))
+    }
+
+    @Test("A program reached through a linked profile folder is the same program")
+    func linkedProfileFolder() throws {
+        try SyntheticPE.wpfApp.write(to: root.appending(path: "users/rodrigo/AppData/Local/App/App.exe"))
+        try FileManager.default.createSymbolicLink(
+            at: root.appending(path: "users/crossover"), withDestinationURL: root.appending(path: "users/rodrigo")
+        )
+        let viaLink = root.appending(path: "users/crossover/AppData/Local/App/App.exe")
+        let direct = root.appending(path: "users/rodrigo/AppData/Local/App/APP.exe")
+
+        #expect(ExecutableAnalyzer.programIdentity(of: viaLink) == ExecutableAnalyzer.programIdentity(of: direct))
+        #expect(
+            ExecutableAnalyzer.programIdentity(of: viaLink)
+                != ExecutableAnalyzer.programIdentity(of: root.appending(path: "users/rodrigo/Other.exe"))
+        )
     }
 
     @Test("An Electron app is steered to DXVK and its renderer isn't named")
