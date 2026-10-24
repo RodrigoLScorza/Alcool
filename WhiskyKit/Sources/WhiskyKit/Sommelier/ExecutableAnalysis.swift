@@ -133,9 +133,16 @@ public struct ExecutableAnalysis: Equatable, Sendable {
     /// Whether the executable is an Electron or CEF shell whose window is a
     /// Chromium page, as many game launchers are.
     public var isChromiumApp = false
+    /// The version resource's `ProductName`, `FileDescription` and `CompanyName`.
+    public var versionStrings: [String: String] = [:]
 
     public init(url: URL) {
         self.url = url
+    }
+
+    /// The name the program gives itself: its product name, else its file description.
+    public var productName: String? {
+        versionStrings["ProductName"] ?? versionStrings["FileDescription"]
     }
 
     public var isDotNet: Bool {
@@ -191,6 +198,7 @@ public enum ExecutableAnalyzer {
         analysis.delayLoadedLibraries = facts.delayLoadedLibraries
         analysis.dotNetRuntimeVersion = facts.dotNetRuntimeVersion
         analysis.referencedAssemblies = facts.referencedAssemblies
+        analysis.versionStrings = facts.versionStrings
 
         let targetFolder = target.deletingLastPathComponent()
         let targetEntries = target == url ? entries : lowercasedEntries(of: targetFolder)

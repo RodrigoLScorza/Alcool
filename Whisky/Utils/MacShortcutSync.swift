@@ -105,9 +105,10 @@ enum MacShortcutSync {
                   handledTargets.insert(targetPath.lowercased()).inserted
             else { continue }
 
-            addedPins = pin(program, name: file.displayName, in: bottle) || addedPins
+            let name = await appName(for: file, program: program, bottleURL: bottleURL)
+            addedPins = pin(program, name: name, in: bottle) || addedPins
             if MacShortcutPreferences.isEnabled {
-                await mirror(program, name: file.displayName)
+                await mirror(program, name: name)
             }
         }
 
@@ -119,6 +120,18 @@ enum MacShortcutSync {
             }
         }
         return addedPins
+    }
+
+    /// The shortcut's name, or the program's product name when the shortcut
+    /// is named like a file (see ``WindowsShortcuts/preferredName(shortcutName:executableURL:productName:)``).
+    private static func appName(for file: WindowsShortcutFile, program: Program, bottleURL: URL) async -> String {
+        let url = program.url
+        let productName = await Task.detached(priority: .utility) {
+            SommelierReportStore.report(for: url, bottleURL: bottleURL)?.productName
+        }.value
+        return WindowsShortcuts.preferredName(
+            shortcutName: file.displayName, executableURL: url, productName: productName
+        )
     }
 
     /// The program a `.lnk` file points at, or `nil` if it can't be read.

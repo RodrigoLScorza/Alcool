@@ -93,7 +93,8 @@ extension Wine {
             guard let analysis = try? ExecutableAnalyzer.analyze(url: url) else {
                 return (nil, .unknown)
             }
-            let advice = Sommelier.advice(for: analysis, d3dMetalAvailable: d3dMetalAvailable)
+            var advice = Sommelier.advice(for: analysis, d3dMetalAvailable: d3dMetalAvailable)
+            advice.analysis = analysis
             if advice.installCoreFonts {
                 BottleFontBootstrap.copyCoreFonts(toPrefix: bottleURL)
             }
@@ -121,11 +122,60 @@ extension Wine {
             }
         }
 
-        for note in advice.notes {
-            logger.info("\(url.lastPathComponent, privacy: .public): \(note.logLine, privacy: .public)")
-        }
         return advice
     }
+
+    /// Settles a launch's Sommelier notes once its backend is known, records
+    /// the launch in the bottle's ``SommelierReportStore``, and posts
+    /// ``Foundation/Notification/Name/sommelierDidAnnounce`` for what the
+    /// program's previous launch didn't have.
+    ///
+    /// - Parameters:
+    ///   - advice: What ``applySommelier(for:bottle:d3dMetalAvailable:importer:)`` returned.
+    ///   - url: The executable being launched.
+    ///   - bottle: The bottle it launches in.
+    ///   - backend: The backend the launch runs on.
+    /// - Returns: The notes as run log lines.
+    @MainActor
+    static func recordSommelier(
+        _ advice: SommelierAdvice, for url: URL, bottle: Bottle, backend: GraphicsBackend
+    ) -> [String] {
+        var notes = advice.notes
+        if let preferred = advice.preferredBackend, preferred != backend {
+            // The user picked a backend, or a Steam game's plan did; the
+            // Sommelier's preference wasn't applied, so don't claim it was.
+            notes.removeAll { $0 == .chromiumUsesDXVK }
+        }
+        if let analysis = advice.analysis {
+            let fresh = SommelierReportStore.recordLaunch(
+                of: url, bottleURL: bottle.url, analysis: analysis, notes: notes
+            )
+            if !fresh.isEmpty {
+                NotificationCenter.default.post(
+                    name: .sommelierDidAnnounce,
+                    object: SommelierAnnouncement(programURL: url, bottleURL: bottle.url, notes: fresh)
+                )
+            }
+        }
+        for note in notes {
+            logger.info("\(url.lastPathComponent, privacy: .public): \(note.logLine, privacy: .public)")
+        }
+        return notes.map(\.logLine)
+    }
+}
+
+/// What the Sommelier did or found the first time for a program's launch.
+public struct SommelierAnnouncement: Sendable {
+    public let programURL: URL
+    public let bottleURL: URL
+    public let notes: [SommelierNote]
+}
+
+public extension Notification.Name {
+    /// Posted on the main actor when a launch gets an adjustment or a warning
+    /// the program's previous launch didn't have. The object is a
+    /// ``SommelierAnnouncement``.
+    static let sommelierDidAnnounce = Notification.Name("com.rodrigoscorza.Alcool.sommelierDidAnnounce")
 }
 
 extension FileHandle {

@@ -32,6 +32,8 @@ struct ProgramView: View {
     @AppStorage("overridesSectionExpanded") private var overridesSectionExpanded: Bool = false
     @AppStorage("consoleRunsSectionExpanded") private var consoleRunsSectionExpanded: Bool = false
     @State private var selectedRunId: UUID?
+    @State private var sommelierState: SommelierReportState = .loading
+    @State private var d3dMetalAvailable = false
 
     private let sessionStore = TroubleshootingSessionStore()
 
@@ -42,6 +44,7 @@ struct ProgramView: View {
                     showTroubleshootingWizard = true
                 }
             }
+            SommelierSection(state: sommelierState, d3dMetalAvailable: d3dMetalAvailable)
             Section("program.config", isExpanded: $configSectionExpanded) {
                 Picker("locale.title", selection: $program.settings.locale) {
                     ForEach(Locales.allCases, id: \.self) { locale in
@@ -158,6 +161,20 @@ struct ProgramView: View {
         .onAppear {
             hasActiveSession = sessionStore.hasActiveSession(for: program.bottle.url)
         }
+        // Again after each launch, which records what the Sommelier did.
+        .task(id: programLoading) {
+            await loadSommelierReport()
+        }
+    }
+
+    private func loadSommelierReport() async {
+        let url = program.url
+        let bottleURL = program.bottle.url
+        let (report, gptk) = await Task.detached(priority: .utility) {
+            (SommelierReportStore.report(for: url, bottleURL: bottleURL), GPTKImporter.isDeployed())
+        }.value
+        d3dMetalAvailable = gptk
+        sommelierState = report.map(SommelierReportState.loaded) ?? .unavailable
     }
 
     private func findRunEntry(id: UUID) -> RunLogEntry? {

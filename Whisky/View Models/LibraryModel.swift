@@ -45,6 +45,8 @@ struct LibraryRow: Identifiable {
     let item: LibraryEntry
     let bottleName: String?
     let lastPlayed: Date?
+    /// What the Sommelier says about a pinned program; `nil` for a Steam game.
+    var badge: SommelierBadge?
 
     var id: String { item.id }
 }
@@ -112,6 +114,7 @@ final class LibraryModel: ObservableObject {
         var built: [LibraryRow] = []
         let showBottleName = bottles.count > 1
         let routed = GameRouting().lastLaunches()
+        let d3dMetalAvailable = await Task.detached { GPTKImporter.isDeployed() }.value
 
         for bottle in bottles {
             let url = bottle.url
@@ -122,11 +125,12 @@ final class LibraryModel: ObservableObject {
             let steam = await Task.detached { SteamLibrarySource.entries(inBottleAt: url) }.value
 
             for item in LibraryCatalogue.merge([pinned, steam]) {
-                built.append(
+                await built.append(
                     LibraryRow(
                         item: item,
                         bottleName: showBottleName ? bottle.settings.name : nil,
-                        lastPlayed: lastPlayed(for: item, routed: routed)
+                        lastPlayed: lastPlayed(for: item, routed: routed),
+                        badge: sommelierBadge(for: item, d3dMetalAvailable: d3dMetalAvailable)
                     )
                 )
             }
@@ -135,6 +139,16 @@ final class LibraryModel: ObservableObject {
         }
 
         rows = sorted(built)
+    }
+
+    /// The Sommelier's badge for a pinned program. Off the main actor: a
+    /// program without a report yet is analysed, which reads its executable.
+    private func sommelierBadge(for item: LibraryEntry, d3dMetalAvailable: Bool) async -> SommelierBadge? {
+        guard case let .program(url) = item.launch else { return nil }
+        let bottleURL = item.bottleURL
+        return await Task.detached(priority: .utility) {
+            SommelierReportStore.report(for: url, bottleURL: bottleURL)?.badge(d3dMetalAvailable: d3dMetalAvailable)
+        }.value
     }
 
     /// When an entry was last started in Whisky.

@@ -122,6 +122,7 @@ struct LibraryView: View {
                         bottleName: row.bottleName,
                         lastPlayed: row.lastPlayed,
                         state: model.state(for: row.item),
+                        badge: row.badge,
                         launch: { model.launch(row, bottles: bottles) }
                     )
                     .contextMenu { menu(for: row) }

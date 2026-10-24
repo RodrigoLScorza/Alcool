@@ -30,6 +30,8 @@ struct SyntheticPE {
     var dotNetVersion: String?
     /// Entries of the `#Strings` heap.
     var dotNetStrings: [String] = []
+    /// `StringFileInfo` entries of a version resource; none when empty.
+    var versionStrings: [String: String] = [:]
 
     static let sectionRVA: UInt32 = 0x1000
     static let sectionOffset = 0x200
@@ -52,6 +54,9 @@ struct SyntheticPE {
         }
         if let dotNetVersion {
             directories.append(Self.appendMetadata(version: dotNetVersion, strings: dotNetStrings, to: &section))
+        }
+        if !versionStrings.isEmpty {
+            directories.append(Self.appendVersionResource(versionStrings, to: &section))
         }
         repeat {
             section.append(0)
@@ -130,6 +135,29 @@ struct SyntheticPE {
         return Directory(index: 14, rva: rva(cliHeader), size: 72)
     }
 
+    /// A resource directory with one `RT_VERSION` entry (type → name →
+    /// language → data), then its `VS_VERSIONINFO`.
+    private static func appendVersionResource(_ strings: [String: String], to section: inout Data) -> Directory {
+        let root = section.count
+        var directory = Data()
+        // Three one-entry directories (16 + 8 bytes each), then the data entry.
+        for (level, id) in [UInt32(16), 1, 0x0409].enumerated() {
+            let entry = level * 24
+            directory.put(UInt16(1), at: entry + 14)
+            directory.put(id, at: entry + 16)
+            let next = UInt32((level + 1) * 24)
+            directory.put(level < 2 ? next | 0x8000_0000 : next, at: entry + 20)
+        }
+        let info = SyntheticVersionInfo.build(strings)
+        let dataEntry = 72
+        directory.put(rva(root + dataEntry + 16), at: dataEntry)
+        directory.put(UInt32(info.count), at: dataEntry + 4)
+        directory.put(UInt32(0), at: dataEntry + 12) // code page and reserved: 16 bytes in all
+        section.append(directory)
+        section.append(info)
+        return Directory(index: 2, rva: rva(root), size: UInt32(directory.count + info.count))
+    }
+
     // MARK: - Headers
 
     /// The DOS header, `PE\0\0` at 0x40, the COFF and PE32+ optional headers,
@@ -187,6 +215,49 @@ struct SyntheticPE {
         imports: ["kernel32.dll", "d3d11.dll", "dxgi.dll", "d3d9.dll"],
         delayImports: ["d3d12.dll"]
     )
+}
+
+/// Builds `VS_VERSIONINFO` blocks: length, value length, type, UTF-16 key,
+/// padding, value, padding, children.
+enum SyntheticVersionInfo {
+    static func build(_ strings: [String: String]) -> Data {
+        let entries = strings.sorted { $0.key < $1.key }.map { key, value in
+            block(key: key, value: utf16(value), textWords: value.utf16.count + 1, children: [])
+        }
+        let table = block(key: "040904b0", value: Data(), textWords: 0, children: entries)
+        let fileInfo = block(key: "StringFileInfo", value: Data(), textWords: 0, children: [table])
+        var fixed = Data(count: 52)
+        fixed.put(UInt32(0xFEEF_04BD), at: 0)
+        return block(key: "VS_VERSION_INFO", value: fixed, binary: true, children: [fileInfo])
+    }
+
+    private static func utf16(_ string: String) -> Data {
+        string.utf16.reduce(into: Data()) { data, unit in
+            data.append(UInt8(unit & 0xFF))
+            data.append(UInt8(unit >> 8))
+        } + [0, 0]
+    }
+
+    private static func block(key: String, value: Data, textWords: Int, children: [Data]) -> Data {
+        block(key: key, value: value, binary: false, valueLength: textWords, children: children)
+    }
+
+    private static func block(key: String, value: Data, binary: Bool, children: [Data]) -> Data {
+        block(key: key, value: value, binary: binary, valueLength: value.count, children: children)
+    }
+
+    private static func block(key: String, value: Data, binary: Bool, valueLength: Int, children: [Data]) -> Data {
+        var data = Data(count: 6)
+        data.put(UInt16(valueLength), at: 2)
+        data.put(UInt16(binary ? 0 : 1), at: 4)
+        data.append(utf16(key))
+        data = data.paddedToFour() + value
+        for child in children {
+            data = data.paddedToFour() + child
+        }
+        data.put(UInt16(data.count), at: 0)
+        return data
+    }
 }
 
 private extension Data {

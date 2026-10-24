@@ -20,7 +20,7 @@ import Foundation
 
 /// Something the Sommelier did or noticed for a launch, recorded in the
 /// program's run log so a failed launch explains itself.
-public enum SommelierNote: Equatable, Sendable {
+public enum SommelierNote: Equatable, Sendable, Codable {
     /// WPF draws through Direct3D 9, which reaches Wine's OpenGL path on
     /// macOS and leaves the window blank, so WPF renders in software instead.
     case wpfSoftwareRendering
@@ -66,6 +66,8 @@ public struct SommelierAdvice: Equatable, Sendable {
     /// or `nil` to use the one Alcool recommends for the machine.
     public var preferredBackend: GraphicsBackend?
     public var notes: [SommelierNote] = []
+    /// The analysis behind the advice, when a launch made it.
+    public var analysis: ExecutableAnalysis?
 
     public init() {}
 }

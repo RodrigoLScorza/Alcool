@@ -49,6 +49,8 @@ struct LibraryCard: View {
     let bottleName: String?
     let lastPlayed: Date?
     let state: LibraryEntryState
+    /// What the Sommelier says about the program, shown while it is idle.
+    var badge: SommelierBadge?
     let launch: () -> Void
 
     @State private var icon: Image?
@@ -95,7 +97,7 @@ struct LibraryCard: View {
             await loadIcon()
         }
         .accessibilityLabel(title)
-        .accessibilityValue(Text(subtitle))
+        .accessibilityValue(Text([subtitle, badge?.title].compactMap(\.self).joined(separator: ", ")))
         .accessibilityHint(Text("library.card.hint"))
     }
 
@@ -143,6 +145,10 @@ struct LibraryCard: View {
                         iconView
                     }
                     Spacer()
+                    if let badge, state == .idle, !isActive {
+                        SommelierBadgeView(badge: badge)
+                            .transition(.opacity)
+                    }
                     statusView
                 }
                 Spacer(minLength: 8)
