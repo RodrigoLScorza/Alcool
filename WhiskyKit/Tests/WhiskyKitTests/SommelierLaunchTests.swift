@@ -169,7 +169,8 @@ final class SommelierLaunchTests {
 
         let launch = try await prepare(app, in: bottle, recorder: recorder)
 
-        #expect(launch.sommelierNotes.isEmpty)
+        // Still analysed (it loads Direct3D on demand), but not taken for a Chromium shell.
+        #expect(!launch.sommelierNotes.contains(SommelierNote.chromiumUsesDXVK.logLine))
         #expect(recorder.overrides(for: .program("Atlas.exe"))?["d3d9"] != "n,b")
     }
 
