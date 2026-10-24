@@ -538,7 +538,7 @@ public class Wine {
         return PreparedLaunch(
             environment: wineEnvironment,
             arguments: launchArguments(for: url, args: args, programOverrides: programOverrides),
-            sommelierNotes: sommelier.notes.map(\.logLine)
+            sommelierNotes: recordSommelier(sommelier, for: url, bottle: bottle, backend: effectiveBackend)
         )
     }
 

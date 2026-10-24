@@ -199,4 +199,28 @@ struct WindowsShortcutsTests {
         let withIcon = try decode(ShortcutCreator.infoPlist(name: "Game", iconFileName: "AppIcon"))
         #expect(withIcon["CFBundleIconFile"] as? String == "AppIcon")
     }
+
+    @Test("A shortcut named like a file takes the program's product name")
+    func preferredNames() {
+        let launcher = URL(filePath: "/c/users/me/AppData/Local/MagicWings/MagicWings.Launcher.exe")
+        #expect(WindowsShortcuts.preferredName(
+            shortcutName: "MagicWings.Launcher", executableURL: launcher, productName: "Magic Wings"
+        ) == "Magic Wings")
+        // Named after the executable, without a dot.
+        let game = URL(filePath: "/c/Games/Seria/Seria.exe")
+        #expect(WindowsShortcuts.preferredName(
+            shortcutName: "seria", executableURL: game, productName: "Crystal of Atlan"
+        ) == "Crystal of Atlan")
+        // A real name stays, whatever the product says.
+        #expect(WindowsShortcuts.preferredName(
+            shortcutName: "Crystal of Atlan Beta", executableURL: game, productName: "Crystal of Atlan"
+        ) == "Crystal of Atlan Beta")
+        // No product name to use: the shortcut's name stays.
+        #expect(WindowsShortcuts.preferredName(
+            shortcutName: "MagicWings.Launcher", executableURL: launcher, productName: "  "
+        ) == "MagicWings.Launcher")
+        #expect(WindowsShortcuts.preferredName(
+            shortcutName: "MagicWings.Launcher", executableURL: launcher, productName: nil
+        ) == "MagicWings.Launcher")
+    }
 }

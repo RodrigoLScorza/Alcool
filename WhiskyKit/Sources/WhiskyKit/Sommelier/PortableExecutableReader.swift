@@ -55,6 +55,9 @@ struct PortableExecutableFacts: Equatable, Sendable {
     /// The entries of the .NET `#Strings` heap that name assemblies this
     /// reader looks for (see ``PortableExecutableReader/knownAssemblies``).
     var referencedAssemblies: Set<String> = []
+    /// The `StringFileInfo` entries of the version resource that this reader
+    /// keeps (see ``PortableExecutableReader/versionKeys``), such as `ProductName`.
+    var versionStrings: [String: String] = [:]
 }
 
 /// A minimal reader for the parts of a PE file the Sommelier needs.
@@ -75,13 +78,14 @@ enum PortableExecutableReader {
     ]
 
     private static let importDirectory = 1
+    private static let resourceDirectory = 2
     private static let delayImportDirectory = 13
     private static let clrDirectory = 14
     private static let maxDescriptors = 1_024
     private static let maxStringsHeap = 32 * 1_024 * 1_024
 
     static func read(url: URL) throws -> PortableExecutableFacts {
-        let file = try BinaryFile(url: url)
+        let file = try PEBinaryFile(url: url)
         defer { file.close() }
 
         guard file.uint16(at: 0) == 0x5A4D, // "MZ"
@@ -106,7 +110,7 @@ enum PortableExecutableReader {
         let directoryCount = file.uint32(at: optional + (isPE32Plus ? 108 : 92)) ?? 0
         let directories = optional + (isPE32Plus ? 112 : 96)
 
-        let image = ImageLayout(
+        let image = PEImageLayout(
             file: file,
             sectionTable: optional + UInt64(optionalSize),
             sectionCount: Int(sectionCount)
@@ -132,13 +136,16 @@ enum PortableExecutableReader {
         if let clr = directory(clrDirectory) {
             readDotNetMetadata(image: image, cliHeaderRVA: clr.rva, into: &facts)
         }
+        if let resources = directory(resourceDirectory) {
+            facts.versionStrings = versionStrings(image: image, resourceRVA: resources.rva)
+        }
         return facts
     }
 
     // MARK: - Imports
 
     /// Names from `IMAGE_IMPORT_DESCRIPTOR`s (20 bytes, name RVA at +12).
-    private static func importNames(image: ImageLayout, rva: UInt32) -> Set<String> {
+    private static func importNames(image: PEImageLayout, rva: UInt32) -> Set<String> {
         var names: Set<String> = []
         for index in 0 ..< maxDescriptors {
             guard let descriptor = image.offset(ofRVA: rva + UInt32(index * 20)),
@@ -155,7 +162,7 @@ enum PortableExecutableReader {
 
     /// Names from `IMAGE_DELAYLOAD_DESCRIPTOR`s (32 bytes, name at +4). Version
     /// 1 descriptors (attribute bit 0) hold RVAs, older ones virtual addresses.
-    private static func delayImportNames(image: ImageLayout, rva: UInt32, imageBase: UInt64) -> Set<String> {
+    private static func delayImportNames(image: PEImageLayout, rva: UInt32, imageBase: UInt64) -> Set<String> {
         var names: Set<String> = []
         for index in 0 ..< maxDescriptors {
             guard let descriptor = image.offset(ofRVA: rva + UInt32(index * 32)),
@@ -180,7 +187,7 @@ enum PortableExecutableReader {
     /// Reads the metadata root the CLI header points at: its version string,
     /// and the `#Strings` heap, checked for ``knownAssemblies``.
     private static func readDotNetMetadata(
-        image: ImageLayout,
+        image: PEImageLayout,
         cliHeaderRVA: UInt32,
         into facts: inout PortableExecutableFacts
     ) {
@@ -227,100 +234,5 @@ enum PortableExecutableReader {
             }
         }
         return found
-    }
-}
-
-/// Maps RVAs to file offsets through a PE file's section table.
-private struct ImageLayout {
-    struct SectionRange {
-        let virtualAddress: UInt32
-        let virtualSize: UInt32
-        let rawOffset: UInt32
-        let rawSize: UInt32
-    }
-
-    let file: BinaryFile
-    let sections: [SectionRange]
-
-    init(file: BinaryFile, sectionTable: UInt64, sectionCount: Int) {
-        self.file = file
-        sections = (0 ..< min(sectionCount, 96)).compactMap { index in
-            let header = sectionTable + UInt64(index * 40)
-            guard let virtualSize = file.uint32(at: header + 8),
-                  let virtualAddress = file.uint32(at: header + 12),
-                  let rawSize = file.uint32(at: header + 16),
-                  let rawOffset = file.uint32(at: header + 20)
-            else { return nil }
-            return SectionRange(
-                virtualAddress: virtualAddress,
-                virtualSize: virtualSize,
-                rawOffset: rawOffset,
-                rawSize: rawSize
-            )
-        }
-    }
-
-    func offset(ofRVA rva: UInt32) -> UInt64? {
-        for section in sections {
-            let span = max(section.virtualSize, section.rawSize)
-            guard rva >= section.virtualAddress, rva - section.virtualAddress < span else { continue }
-            let delta = rva - section.virtualAddress
-            guard delta < section.rawSize else { return nil }
-            return UInt64(section.rawOffset) + UInt64(delta)
-        }
-        return nil
-    }
-
-    /// A NUL-terminated ASCII string at `rva`, up to 256 bytes.
-    func string(atRVA rva: UInt32) -> String? {
-        guard let offset = offset(ofRVA: rva),
-              let data = file.read(at: offset, count: 256),
-              let end = data.firstIndex(of: 0), end > data.startIndex
-        else { return nil }
-        return String(bytes: data[data.startIndex ..< end], encoding: .utf8)
-    }
-}
-
-/// Bounded little-endian reads from a file.
-private final class BinaryFile {
-    private let handle: FileHandle
-    let size: UInt64
-
-    init(url: URL) throws {
-        handle = try FileHandle(forReadingFrom: url)
-        size = (try? handle.seekToEnd()) ?? 0
-    }
-
-    func close() {
-        try? handle.close()
-    }
-
-    func read(at offset: UInt64, count: Int) -> Data? {
-        guard count > 0, offset < size else { return nil }
-        let available = Int(min(UInt64(count), size - offset))
-        do {
-            try handle.seek(toOffset: offset)
-            return try handle.read(upToCount: available)
-        } catch {
-            return nil
-        }
-    }
-
-    func uint16(at offset: UInt64) -> UInt16? {
-        integer(at: offset)
-    }
-
-    func uint32(at offset: UInt64) -> UInt32? {
-        integer(at: offset)
-    }
-
-    func uint64(at offset: UInt64) -> UInt64? {
-        integer(at: offset)
-    }
-
-    private func integer<T: FixedWidthInteger>(at offset: UInt64) -> T? {
-        let width = MemoryLayout<T>.size
-        guard let data = read(at: offset, count: width), data.count == width else { return nil }
-        return data.reversed().reduce(T.zero) { ($0 << 8) | T($1) }
     }
 }

@@ -188,8 +188,56 @@ final class SommelierLaunchTests {
         try Data([0]).write(to: folder.appending(path: "resources/app.asar"))
         let recorder = SommelierRegistryRecorder()
 
-        _ = try await prepare(app, in: bottle, recorder: recorder)
+        let launch = try await prepare(app, in: bottle, recorder: recorder)
 
         #expect(recorder.overrides(for: .program("Atlas.exe"))?["d3d9"] != "n,b")
+        // DXVK wasn't applied, so neither the log nor an announcement says it was.
+        #expect(!launch.sommelierNotes.contains(SommelierNote.chromiumUsesDXVK.logLine))
+    }
+
+    @Test("A program's first launch with an adjustment is announced, and the next one isn't")
+    func firstAdjustmentIsAnnounced() async throws {
+        let bottle = try makeBottle()
+        let app = bottle.url.appending(path: "drive_c/Program Files/Tool/Tool.exe")
+        try SyntheticPE.wpfApp.write(to: app)
+        let collector = AnnouncementCollector(bottleURL: bottle.url)
+        defer { collector.stop() }
+        let recorder = SommelierRegistryRecorder()
+
+        _ = try await prepare(app, in: bottle, recorder: recorder)
+        _ = try await prepare(app, in: bottle, recorder: recorder)
+
+        #expect(collector.announcements.count == 1)
+        #expect(collector.announcements.first?.notes == [.wpfSoftwareRendering])
+        let report = SommelierReportStore.load(bottleURL: bottle.url)["program files/tool/tool.exe"]
+        #expect(report?.lastLaunch != nil)
+    }
+}
+
+/// Collects the Sommelier announcements for one bottle, since tests in other
+/// suites may launch at the same time.
+@MainActor
+private final class AnnouncementCollector {
+    private(set) var announcements: [SommelierAnnouncement] = []
+    private var token: NSObjectProtocol?
+
+    init(bottleURL: URL) {
+        token = NotificationCenter.default.addObserver(
+            forName: .sommelierDidAnnounce, object: nil, queue: nil
+        ) { [weak self] notification in
+            guard let announcement = notification.object as? SommelierAnnouncement,
+                  announcement.bottleURL == bottleURL
+            else { return }
+            // Posted on the main actor, and delivered on the posting thread.
+            MainActor.assumeIsolated {
+                self?.announcements.append(announcement)
+            }
+        }
+    }
+
+    func stop() {
+        if let token {
+            NotificationCenter.default.removeObserver(token)
+        }
     }
 }

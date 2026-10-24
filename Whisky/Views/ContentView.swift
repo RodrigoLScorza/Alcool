@@ -45,6 +45,7 @@ struct ContentView: View {
             detail
         }
         .toast($toast)
+        .sommelierAnnouncements()
         .onReceive(NotificationCenter.default.publisher(for: .zombieProcessesCleaned)) { notification in
             if let count = notification.userInfo?["count"] as? Int, count > 0 {
                 withAnimation {

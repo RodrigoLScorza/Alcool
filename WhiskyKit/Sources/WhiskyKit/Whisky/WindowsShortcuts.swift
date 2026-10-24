@@ -149,6 +149,23 @@ public enum WindowsShortcuts {
         return !words.contains(where: { nonProgramNameWords.contains($0) })
     }
 
+    /// The name a program's Mac app gets.
+    ///
+    /// The shortcut's own name, which is what Windows shows, unless it reads
+    /// like a file name, as when an installer names the shortcut after the
+    /// executable ("MagicWings.Launcher"). Then the product name from the
+    /// executable's version resource ("Magic Wings") reads better.
+    public static func preferredName(shortcutName: String, executableURL: URL, productName: String?) -> String {
+        let stem = executableURL.deletingPathExtension().lastPathComponent
+        let looksLikeFileName = shortcutName.caseInsensitiveCompare(stem) == .orderedSame
+            || (!shortcutName.contains(" ") && shortcutName.contains("."))
+        guard looksLikeFileName,
+              let productName = productName?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !productName.isEmpty
+        else { return shortcutName }
+        return productName
+    }
+
     /// A file-system-safe name for the Mac `.app` that mirrors a shortcut.
     ///
     /// Slashes and colons become dashes, surrounding whitespace and leading
