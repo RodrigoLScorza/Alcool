@@ -56,6 +56,23 @@ extension SommelierBadge {
         }
     }
 
+    /// The words a library card's status line uses for the badge.
+    var statusText: String {
+        switch self {
+        case .autoAdjusted, .needsD3DMetal: title
+        case .antiCheat: String(localized: "sommelier.status.antiCheat")
+        }
+    }
+
+    /// The colour of the dot beside a card's status line.
+    var statusTint: Color {
+        switch self {
+        case .autoAdjusted: .green
+        case .antiCheat: .red
+        case .needsD3DMetal: .orange
+        }
+    }
+
     /// Dark enough for white text on top.
     var tint: Color {
         switch self {

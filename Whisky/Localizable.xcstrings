@@ -58853,6 +58853,12 @@
             "state" : "translated",
             "value" : "Konfiguruj butelkę"
           }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configurar bottle"
+          }
         }
       }
     },
@@ -58881,6 +58887,12 @@
             "state" : "translated",
             "value" : "Uruchamia ten program"
           }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abre este programa"
+          }
         }
       }
     },
@@ -58903,6 +58915,12 @@
             "state" : "translated",
             "value" : "Nigdy nie uruchamiaj"
           }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nunca aberto"
+          }
         }
       }
     },
@@ -58921,6 +58939,12 @@
           }
         },
         "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Launcher"
+          }
+        },
+        "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Launcher"
@@ -58953,6 +58977,12 @@
             "state" : "translated",
             "value" : "Uruchamianie…"
           }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrindo…"
+          }
         }
       }
     },
@@ -58980,6 +59010,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Uruchomione"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Em execução"
           }
         }
       }
@@ -59009,6 +59045,12 @@
             "state" : "translated",
             "value" : "Zatrzymaj"
           }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Parar"
+          }
         }
       }
     },
@@ -59030,6 +59072,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Odepnij"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remover da biblioteca"
           }
         }
       }
@@ -59059,6 +59107,12 @@
             "state" : "translated",
             "value" : "Stwórz butelkę, w której będą instalowane programy na Windowsa."
           }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Crie uma bottle para instalar programas do Windows."
+          }
         }
       }
     },
@@ -59080,6 +59134,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Programy zainstalowane w butelce będą się tu wyświetlać"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os programas que você instalar aparecem aqui."
           }
         }
       }
@@ -59103,6 +59163,12 @@
             "state" : "translated",
             "value" : "Otwórz butelkę i przypnij program, aby go zobaczyć tutaj."
           }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abra uma bottle e fixe um programa para vê-lo aqui."
+          }
         }
       }
     },
@@ -59124,6 +59190,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Jeszcze nic nie zainstalowano"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nada instalado ainda"
           }
         }
       }
@@ -59153,6 +59225,12 @@
             "state" : "translated",
             "value" : "Nie można było uruchomić"
           }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível abrir"
+          }
         }
       }
     },
@@ -59174,6 +59252,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Uruchamianie %@…"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrindo %@…"
           }
         }
       }
@@ -59197,6 +59281,12 @@
             "state" : "translated",
             "value" : "Steam już nie wyświetla tej gry jako zainstalowanej."
           }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Steam não lista mais este jogo como instalado."
+          }
         }
       }
     },
@@ -59205,19 +59295,25 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Search programs"
+            "value" : "Search games"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Search programs"
+            "value" : "Search games"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Szukaj programów"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buscar jogos"
           }
         }
       }
@@ -59243,6 +59339,12 @@
           }
         },
         "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Steam"
+          }
+        },
+        "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Steam"
@@ -59275,6 +59377,12 @@
             "state" : "translated",
             "value" : "Sortuj"
           }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordenar"
+          }
         }
       }
     },
@@ -59302,6 +59410,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "wg butelki"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bottle"
           }
         }
       }
@@ -59331,6 +59445,12 @@
             "state" : "translated",
             "value" : "wg nazwy"
           }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nome"
+          }
         }
       }
     },
@@ -59359,6 +59479,12 @@
             "state" : "translated",
             "value" : "wg ostatnio granych"
           }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jogados recentemente"
+          }
         }
       }
     },
@@ -59367,13 +59493,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Library"
+            "value" : "Games"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Library"
+            "value" : "Games"
           }
         },
         "it" : {
@@ -59392,6 +59518,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Biblioteka"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jogos"
           }
         }
       }
@@ -59420,6 +59552,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Butelki"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bottles"
           }
         }
       }
@@ -113734,6 +113872,204 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fechar"
+          }
+        }
+      }
+    },
+    "library.header" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your games"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your games"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seus jogos"
+          }
+        }
+      }
+    },
+    "library.continue" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continue playing"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continue playing"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continue jogando"
+          }
+        }
+      }
+    },
+    "library.allGames" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All games"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All games"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todos os jogos"
+          }
+        }
+      }
+    },
+    "library.play" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Play"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Play"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jogar"
+          }
+        }
+      }
+    },
+    "library.details" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Details"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Details"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detalhes"
+          }
+        }
+      }
+    },
+    "library.install" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Install game"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Install game"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instalar jogo"
+          }
+        }
+      }
+    },
+    "library.addGame" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add game"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add game"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adicionar jogo"
+          }
+        }
+      }
+    },
+    "library.played %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Played %@"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Played %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jogado %@"
+          }
+        }
+      }
+    },
+    "sommelier.status.antiCheat" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anti-cheat: may not open"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anti-cheat: may not open"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anti-cheat: talvez não abra"
           }
         }
       }
