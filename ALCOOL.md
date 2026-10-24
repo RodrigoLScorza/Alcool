@@ -146,6 +146,22 @@ Code: `WhiskyKit/.../Sommelier/` (reader, analyzer, advice, reports, launch inte
 `Wine.prepareProgramLaunch`; tests in `SommelierTests`, `SommelierLaunchTests` and the
 `SyntheticPE` builder.
 
+### Look and flow
+
+Designed in October 2026 around one idea: Wine's vocabulary stays out of the way.
+
+- **Icon:** a laboratory flask with blue and amber liquids mixing (Windows and Mac), on the
+  macOS icon grid, with a thicker drawing for 16 and 32 pt. Accent colour: `#2F6FE4` (light),
+  `#4C8DFF` (dark).
+- **Games (library):** "Continue playing" banner for the game played last, calm cards whose
+  status line carries the Sommelier's verdict, an "Add game" card and an "Install game" button.
+- **Install:** its own sidebar entry and the first-run screen. Drop or pick an installer, see what
+  the Sommelier makes of it, and Alcool makes a bottle named after the product (`InstallerNaming`),
+  runs the installer and says when the game reached the library.
+- **Program page:** a header with a large Play button, the Sommelier's section, "How it runs"
+  (graphics in plain words on the same per-program override, and language), and "Advanced".
+- Bottles, Winetricks, the terminal and DLL overrides are all still there, one level down.
+
 ## Syncing with upstream
 
 ```bash
