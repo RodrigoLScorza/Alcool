@@ -180,6 +180,16 @@ final class LibraryModel: ObservableObject {
         var target: String?
     }
 
+    /// Asks for an installer and runs it in `bottle`. The game it installs
+    /// reaches the library on its own: its shortcut is pinned (see
+    /// ``MacShortcutSync``), and a new pin reloads the library.
+    func install(in bottle: Bottle) {
+        Task {
+            guard let installer = await InstallerLauncher.chooseInstaller() else { return }
+            toast = await InstallerLauncher.run(installer, in: bottle)
+        }
+    }
+
     /// When an entry was last started in Whisky.
     private func lastPlayed(
         for item: LibraryEntry, routed: [Int: Date]

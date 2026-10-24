@@ -65,9 +65,12 @@ struct LibraryView: View {
                 grid
             }
         }
-        .navigationTitle("library.title")
+        .navigationTitle("library.header")
         .searchable(text: $search, prompt: Text("library.search"))
-        .toolbar { sortMenu }
+        .toolbar {
+            installItem
+            sortMenu
+        }
         .toast($model.toast)
         .task(id: reloadTrigger) {
             await model.reload(bottles: bottles)
@@ -91,6 +94,28 @@ struct LibraryView: View {
         }
     }
 
+    /// Installing is the second thing anyone does here, after playing, so it
+    /// is the toolbar's one prominent control.
+    private var installItem: some ToolbarContent {
+        ToolbarItem(placement: .primaryAction) {
+            InstallGameButton(bottles: bottles, install: model.install(in:)) {
+                Label("library.install", systemImage: "plus")
+                    .labelStyle(.titleAndIcon)
+            }
+            .buttonStyle(.borderedProminent)
+            .disabled(bottles.isEmpty)
+            .accessibilityIdentifier("library.install")
+        }
+    }
+
+    /// The game played last, while nothing is being searched for.
+    private var hero: LibraryRow? {
+        guard search.isEmpty else { return nil }
+        return model.rows
+            .filter { !$0.item.isLauncher && $0.lastPlayed != nil }
+            .max { ($0.lastPlayed ?? .distantPast) < ($1.lastPlayed ?? .distantPast) }
+    }
+
     private var sortMenu: some ToolbarContent {
         ToolbarItem(placement: .primaryAction) {
             Menu {
@@ -109,27 +134,49 @@ struct LibraryView: View {
 
     private var grid: some View {
         ScrollView {
-            LazyVGrid(
-                // 180 rather than 220 so two columns fit at the window's own
-                // minimum width, where the sidebar leaves about 330pt: one
-                // column of landscape cards is a list with wasted space.
-                columns: [GridItem(.adaptive(minimum: 180, maximum: 320), spacing: 14)],
-                spacing: 14
-            ) {
-                ForEach(visible) { row in
-                    LibraryCard(
-                        item: row.item,
-                        bottleName: row.bottleName,
-                        lastPlayed: row.lastPlayed,
-                        state: model.state(for: row.item),
-                        badge: row.badge,
-                        displayName: row.title,
-                        launch: { model.launch(row, bottles: bottles) }
+            VStack(alignment: .leading, spacing: 26) {
+                if let hero {
+                    LibraryHero(
+                        row: hero,
+                        state: model.state(for: hero.item),
+                        launch: { model.launch(hero, bottles: bottles) },
+                        details: { selectedBottle = hero.item.bottleURL }
                     )
-                    .contextMenu { menu(for: row) }
+                    .contextMenu { menu(for: hero) }
+                }
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("library.allGames")
+                        .font(.title3.weight(.semibold))
+                    cards
                 }
             }
-            .padding(18)
+            .padding(22)
+        }
+    }
+
+    private var cards: some View {
+        LazyVGrid(
+            // 180 rather than 220 so two columns fit at the window's own
+            // minimum width, where the sidebar leaves about 330pt: one
+            // column of cards is a list with wasted space.
+            columns: [GridItem(.adaptive(minimum: 180, maximum: 300), spacing: 14)],
+            spacing: 14
+        ) {
+            ForEach(visible) { row in
+                LibraryCard(
+                    item: row.item,
+                    bottleName: row.bottleName,
+                    lastPlayed: row.lastPlayed,
+                    state: model.state(for: row.item),
+                    badge: row.badge,
+                    displayName: row.title,
+                    launch: { model.launch(row, bottles: bottles) }
+                )
+                .contextMenu { menu(for: row) }
+            }
+            if search.isEmpty {
+                AddGameCard(bottles: bottles, install: model.install(in:))
+            }
         }
     }
 

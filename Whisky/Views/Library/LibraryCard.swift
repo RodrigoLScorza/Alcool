@@ -61,18 +61,6 @@ struct LibraryCard: View {
     @State private var isHovering = false
     @FocusState private var isFocused: Bool
 
-    /// Both stops are opaque. A gradient that fades towards transparent
-    /// composites against the window, which is near-white in light mode, and
-    /// the white label on top of that corner falls to about 2:1 contrast.
-    private var backdrop: Color { Color(palette.deepened()) }
-    private var backdropDeep: Color { Color(palette.deepened(toLuminance: 0.07)) }
-
-    /// Taken from the palette rather than hardcoded, so the label cannot end up
-    /// the same lightness as what is behind it if the deepening target moves.
-    private var foreground: Color {
-        palette.deepened().prefersLightForeground ? .white : .black
-    }
-
     /// A launcher is named by what it is. A pin takes its name from the
     /// executable, which is how the Steam client ends up on screen as "steam".
     private var title: String { item.launcher?.displayName ?? displayName ?? item.name }
@@ -99,7 +87,7 @@ struct LibraryCard: View {
             await loadIcon()
         }
         .accessibilityLabel(title)
-        .accessibilityValue(Text([subtitle, badge?.title].compactMap(\.self).joined(separator: ", ")))
+        .accessibilityValue(Text(subtitle))
         .accessibilityHint(Text("library.card.hint"))
     }
 
@@ -107,87 +95,66 @@ struct LibraryCard: View {
     /// exist for somebody on the keyboard.
     private var isActive: Bool { isHovering || isFocused }
 
-    private var card: some View {
-        ZStack(alignment: .topLeading) {
-            LinearGradient(
-                colors: [backdrop, backdropDeep],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
+    private var shape: RoundedRectangle {
+        RoundedRectangle(cornerRadius: 14, style: .continuous)
+    }
 
+    /// A calm card: the window's own surface, the program's colour kept to its
+    /// icon tile, and one status line that says what matters about it.
+    private var card: some View {
+        VStack(alignment: .leading, spacing: 0) {
             if let artwork {
-                // Steam cached this art inside the bottle, so a Steam game shows
-                // its own banner with nothing fetched. Sized by an empty layer
-                // rather than by the image: scaledToFill on its own reports the
-                // image's size upward and the card grows to fit it.
+                // Steam cached this art inside the bottle. It heads the card as
+                // a banner rather than being squeezed into the icon tile. Sized
+                // by an empty layer: scaledToFill on its own reports the image's
+                // size upward and the card grows to fit it.
                 Color.clear
+                    .frame(height: 78)
                     .overlay {
                         artwork
                             .resizable()
                             .scaledToFill()
                     }
                     .clipped()
-                    .overlay {
-                        // The scrim is what keeps the name readable over art we
-                        // do not control.
-                        LinearGradient(
-                            colors: [.black.opacity(0.05), .black.opacity(0.75)],
-                            startPoint: .center,
-                            endPoint: .bottom
-                        )
-                    }
             }
-
-            VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading, spacing: 12) {
                 HStack(alignment: .top) {
-                    // The icon tile is the identity when there is no artwork.
-                    // With artwork it would sit on top of the thing it stands in
-                    // for, so it goes.
                     if artwork == nil {
-                        iconView
+                        iconTile
                     }
-                    Spacer()
-                    if let badge, state == .idle, !isActive {
-                        SommelierBadgeView(badge: badge)
-                            .transition(.opacity)
-                    }
+                    Spacer(minLength: 8)
                     statusView
                 }
-                Spacer(minLength: 8)
-                Text(title)
-                    .font(.headline)
-                    .lineLimit(1)
-                    // Tail, not middle: a game's name is recognisable from its
-                    // start, and "The Elder Scro...Special Edition" reads worse
-                    // than losing the edition suffix.
-                    .truncationMode(.tail)
-                Text(subtitle)
-                    .font(.caption)
-                    .foregroundStyle(foreground.opacity(0.7))
-                    .lineLimit(1)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(title)
+                        .font(.headline)
+                        .lineLimit(1)
+                        // Tail, not middle: a game's name is recognisable from its
+                        // start, and "The Elder Scro...Special Edition" reads worse
+                        // than losing the edition suffix.
+                        .truncationMode(.tail)
+                    statusLine
+                }
             }
             .padding(14)
         }
-        // Artwork brings its own scrim, so a card showing art is always dark
-        // under the label whatever the sampled palette says.
-        .foregroundStyle(artwork == nil ? foreground : .white)
-        .frame(height: 132)
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .frame(maxWidth: .infinity, minHeight: 132, alignment: .topLeading)
+        .background(.background.secondary, in: shape)
+        .clipShape(shape)
         .overlay {
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .strokeBorder(.white.opacity(isActive ? 0.22 : 0.08), lineWidth: 1)
+            shape.strokeBorder(Color(nsColor: .separatorColor).opacity(isActive ? 1 : 0.6), lineWidth: 1)
         }
         .overlay {
             if isFocused {
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .strokeBorder(Color.accentColor, lineWidth: 3)
+                shape.strokeBorder(Color.accentColor, lineWidth: 3)
             }
         }
-        .shadow(color: .black.opacity(isActive ? 0.28 : 0.16), radius: isActive ? 10 : 5, y: 3)
+        .shadow(color: .black.opacity(isActive ? 0.18 : 0.06), radius: isActive ? 10 : 4, y: 2)
         .scaleEffect(isActive ? 1.015 : 1)
     }
 
-    /// The top-right corner: what it is doing, or the offer to start it.
+    /// The top-right corner: a launch in progress, or the offer to start it.
+    /// Running shows in the status line instead.
     @ViewBuilder
     private var statusView: some View {
         switch state {
@@ -195,17 +162,9 @@ struct LibraryCard: View {
             ProgressView()
                 .controlSize(.small)
                 .frame(width: 30, height: 30)
-                .cardGlass(.circle)
                 .help("library.card.launching")
         case .running:
-            Label("library.card.running", systemImage: "circle.fill")
-                .labelStyle(.titleAndIcon)
-                .font(.caption2)
-                .imageScale(.small)
-                .foregroundStyle(.green)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .cardGlass(.capsule)
+            EmptyView()
         case .idle:
             if isActive {
                 Image(systemName: "play.fill")
@@ -217,34 +176,66 @@ struct LibraryCard: View {
         }
     }
 
-    @ViewBuilder
-    private var iconView: some View {
-        if let icon {
-            icon
-                .resizable()
-                .frame(width: 44, height: 44)
-                .shadow(color: .black.opacity(0.3), radius: 3, y: 1)
-        } else {
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(.white.opacity(0.12))
-                .frame(width: 44, height: 44)
-        }
+    /// The program's icon on its own colour, which is what tells cards apart
+    /// at a glance now that the cards themselves are calm.
+    private var iconTile: some View {
+        RoundedRectangle(cornerRadius: 12, style: .continuous)
+            .fill(Color(palette.deepened()))
+            .frame(width: 52, height: 52)
+            .overlay {
+                if let icon {
+                    icon
+                        .resizable()
+                        .interpolation(.high)
+                        .frame(width: 36, height: 36)
+                        .shadow(color: .black.opacity(0.25), radius: 2, y: 1)
+                }
+            }
     }
 
-    /// Source first when it is not a pin, because "Steam" tells you why an entry
-    /// is here at all, and a pin needs no explanation.
+    private var statusLine: some View {
+        HStack(spacing: 6) {
+            if let statusTint {
+                Circle()
+                    .fill(statusTint)
+                    .frame(width: 7, height: 7)
+            }
+            Text(subtitle)
+                .lineLimit(1)
+        }
+        .font(.caption)
+        .foregroundStyle(.secondary)
+    }
+
+    /// The dot's colour: running, or the Sommelier's verdict.
+    private var statusTint: Color? {
+        if state == .running {
+            return .green
+        }
+        return badge?.statusTint
+    }
+
+    /// What matters first: running, then the Sommelier's verdict, then why an
+    /// entry is here at all ("Steam") and when it last ran.
     private var subtitle: String {
         var parts: [String] = []
+        if state == .running {
+            parts.append(String(localized: "library.card.running"))
+        } else if let badge {
+            parts.append(badge.statusText)
+        }
         if item.isLauncher {
             parts.append(String(localized: "library.card.launcher"))
         }
         if item.source == .steam {
             parts.append(String(localized: "library.source.steam"))
         }
-        if let lastPlayed {
-            parts.append(lastPlayed.formatted(.relative(presentation: .named)))
-        } else {
-            parts.append(String(localized: "library.card.neverRun"))
+        if state != .running {
+            if let lastPlayed {
+                parts.append(lastPlayed.formatted(.relative(presentation: .named)))
+            } else {
+                parts.append(String(localized: "library.card.neverRun"))
+            }
         }
         if let bottleName {
             parts.append(bottleName)
