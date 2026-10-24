@@ -1,221 +1,129 @@
 <div align="center">
 
-  # Alcool 🥃
-  *Run Windows games on your Mac*
+  <img width="128" alt="Alcool icon" src="./Whisky/Assets.xcassets/AppIcon.appiconset/icon_256.png">
 
-  > **Alcool is a fork of [frankea/Whisky](https://github.com/frankea/Whisky)**, the active community
-  > continuation of the archived [whisky-app/whisky](https://github.com/whisky-app/whisky). It keeps
-  > Whisky's Wine runtime and GameDB and adds its own work on top — see [ALCOOL.md](ALCOOL.md) for
-  > what differs. Not affiliated with CodeWeavers, the Whisky project or getwhisky.app.
-  > Licensed under GPL-3.0, like Whisky.
+  # Alcool
+
+  **Windows games on your Mac, without the hassle.**
+
+  Free and open source (GPL-3.0) · Apple Silicon · macOS 15 or later
+
+  [![CI](https://github.com/RodrigoLScorza/Alcool/actions/workflows/CI.yml/badge.svg)](https://github.com/RodrigoLScorza/Alcool/actions/workflows/CI.yml)
+
+  [Leia em português](README.pt-BR.md)
 
 </div>
 
-## Overview
+## What Alcool is
 
-Whisky provides a clean and easy-to-use graphical wrapper for Wine built in native SwiftUI. You can make and manage bottles, install and run Windows apps and games, and unlock the full potential of your Mac with no technical knowledge required.
+Alcool runs Windows games and apps on the Mac with Wine, like CrossOver does, but
+free and open source. You drop an installer on it and get the game in a library,
+on your Desktop and in Launchpad. Bottles, Winetricks and DLL overrides are all
+still there, one level down, for when you need them.
 
-<img width="650" alt="Whisky in action" src="./images/demo.gif">
+<!-- Screenshots: images/alcool-library.png, images/alcool-install.png, images/alcool-program.png -->
 
-<img width="650" alt="Config" src="./images/config-screenshot.png">
+## What it does differently
 
-*Familiar UI that integrates seamlessly with macOS*
+- **Install by dropping a file.** Drag an installer (`.exe`, `.msi`) onto the Install
+  screen. Alcool says what it found in it, makes a bottle named after the game, runs
+  the installer and tells you when the game reached your library.
+- **The Sommelier.** Before every launch Alcool reads the game's executable, without
+  running it, and sets the bottle up for what it is. WPF apps that would open as a white
+  window get software rendering and the fonts they need. Electron and CEF launchers that
+  draw nothing on DXMT go to DXVK. Anti-cheats that won't work under Wine are flagged
+  before you waste an evening. The program page shows what it found and what it changed.
+- **Installed games become Mac apps.** When an installer adds a Start Menu or Desktop
+  shortcut, Alcool makes a Mac app for it in `~/Applications/Alcool` and on the
+  Desktop, with the game's own icon and name.
+- **A library built for playing.** The game you played last sits at the top with a
+  large Play button; each card says in plain words whether the game was adjusted,
+  needs D3DMetal or ships an anti-cheat.
+- **Settings in plain words.** "How it runs" picks the graphics translation and the
+  language per game. Wine's vocabulary stays in Advanced.
 
-<div align="right">
-  <img width="650" alt="New Bottle" src="./images/new-bottle-screenshot.png">
+Under the hood it is Wine 11 with D3DMetal, DXMT, DXVK and WineD3D for graphics, plus
+launcher fixes for Steam, Epic Games, EA App, Rockstar and Battle.net.
+[ALCOOL.md](ALCOOL.md) has the technical details of everything Alcool adds.
 
-  *One-click bottle creation and management*
-</div>
+## Status
 
-<img width="650" alt="debug" src="./images/debug-screenshot.png">
+Alcool is young. There is no signed release yet, so for now it is built from source.
+Signed, notarized downloads with automatic updates come next.
 
-*Debug and profile with ease*
+## Building from source
 
----
-
-## Key Features
-
-- **Wine 11.0** - Latest stable Wine with improved compatibility and networking
-- **DXMT & DXVK Graphics** - DirectX 11 through native Metal translation (DXMT) out of the box, with DXVK over MoltenVK as the universal fallback
-- **Launcher Compatibility** - Built-in support for Steam, Epic, EA App, Rockstar, Battle.net, and more
-- **Controller Support** - SDL environment variable controls for gamepad detection and mapping issues
-- **Stability Diagnostics** - One-click diagnostic reports for troubleshooting crashes and freezes
-- **Native SwiftUI** - Beautiful, familiar macOS interface
-
-## System Requirements
-
-- **CPU**: Apple Silicon (M-series chips)
-- **OS**: macOS Sequoia 15.0 or later
-
-## Installation
-
-### Homebrew (recommended)
+You need Xcode 16 or later on an Apple Silicon Mac. No Apple developer account is
+needed for a local build.
 
 ```sh
-brew install --cask frankea/whisky/whisky
+git clone https://github.com/RodrigoLScorza/Alcool.git
+cd Alcool
+xcodebuild -project Whisky.xcodeproj -scheme Whisky -configuration Debug \
+  -derivedDataPath build \
+  CODE_SIGN_IDENTITY="-" CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM="" \
+  ENABLE_HARDENED_RUNTIME=NO SKIP_SWIFTLINT_BUILD_PHASE=YES -quiet build
+cp -R build/Build/Products/Debug/Alcool.app /Applications/
+open /Applications/Alcool.app
 ```
 
-This taps [frankea/homebrew-whisky](https://github.com/frankea/homebrew-whisky) and installs the latest signed/notarized DMG. `brew upgrade --cask` picks up new releases.
+On first launch Alcool downloads the Wine runtime (about 330 MB).
 
-> The default `brew install --cask whisky` still installs the **archived original** (last release April 2025) and always will until that cask is updated. Use the qualified `frankea/whisky/whisky` form to get this fork.
+## Alongside Whisky
 
-### Manual
+Alcool has its own bundle identifier and data folders, so it can be installed next to
+Whisky without sharing bottles, settings or links. Bottles from the original Whisky can
+be brought over with **File → Migrate from the Original Whisky…**; they are used in
+place, not copied.
 
-1. Download the latest **[Whisky-X.Y.Z.dmg](https://github.com/frankea/Whisky/releases/latest)** (signed and notarized — Gatekeeper-approved).
-2. Open the DMG and drag **Whisky.app** to **/Applications**.
-3. Launch Whisky. On first run it downloads the Wine runtime (~330 MB) and sets up your default bottle.
+## Privacy
 
-In-app updates are delivered through Sparkle from `https://frankea.github.io/Whisky/appcast.xml`.
-
-### Migrating from the original Whisky
-
-The original [whisky-app/whisky](https://github.com/whisky-app/whisky) was archived on **April 9, 2025** with a final maintenance notice. If you're running it today, you're on a stale build with no path forward for new fixes. This fork picks up where the upstream left off — version `3.0.1` shipped 54 requirements covering the 10 categories of upstream issue tracking (#40–#50).
-
-To switch:
-
-1. Install this fork: `brew install --cask frankea/whisky/whisky` or follow the manual steps above.
-2. Open it and choose **File → Migrate from the Original Whisky**. It finds the bottles the original app left in `~/Library/Containers/com.isaacmarovitz.Whisky/` and imports the ones you pick. Bottles are referenced **in place** — nothing is moved or copied — so the original app keeps working if you'd like to keep it around.
-3. *(Optional)* Once you're happy, remove the original app: drag **/Applications/Whisky.app** to the Trash, or `brew uninstall --cask whisky` if you installed it via Homebrew. Your bottles stay put.
-
-The original app uses a different bundle identifier (`com.franke.Whisky` here vs. `com.isaacmarovitz.Whisky`), which is why bottles aren't shared automatically. The old **Bottle → Export** / **File → Import Bottle** route still works if you'd rather move bottles by hand or onto another Mac. With no critical bottles, you can skip migration entirely — the new app creates a fresh bottle on first launch.
+Alcool collects no usage data. The analytics code inherited from Whisky has no project key,
+so it stays off even if the setting is turned on.
 
 ## Uninstalling
 
-Dragging **Whisky.app** to the Trash (or `brew uninstall --cask frankea/whisky/whisky`) removes the app but leaves the Wine runtime, your bottles, and app data behind — by design, so reinstalling doesn't re-download ~330 MB or lose your bottles.
-
-> ⚠️ **Back up your bottles first if you want to keep them.** Removing the container below deletes every bottle stored in its default location. Bottles you created in a custom folder live wherever you put them — check **Bottle → Reveal in Finder** before deleting anything.
-
-To remove Whisky **completely**, delete the app and then these paths (all under `~/Library`):
+Moving `Alcool.app` to the Trash leaves your bottles and the Wine runtime in place, so
+a reinstall doesn't lose them. To remove everything, back up any bottle you want to keep
+and then delete:
 
 ```sh
-# 1. The app itself
-rm -rf "/Applications/Whisky.app"          # or: brew uninstall --cask frankea/whisky/whisky
-
-# 2. Bottles + bottle list (default bottle location is inside this container)
-rm -rf ~/Library/Containers/com.franke.Whisky
-rm -rf ~/Library/Containers/com.franke.Whisky.WhiskyThumbnail
-
-# 3. The Wine runtime (~330 MB) and other app support
-rm -rf ~/Library/Application\ Support/com.franke.Whisky
-
-# 4. Caches, logs, preferences, and saved state
-rm -rf ~/Library/Caches/com.franke.Whisky
-rm -rf ~/Library/Logs/com.franke.Whisky
-rm -rf ~/Library/HTTPStorages/com.franke.Whisky
-rm -f  ~/Library/Preferences/com.franke.Whisky.plist
+~/Library/Containers/com.rodrigoscorza.Alcool                # bottles
+~/Library/Containers/com.rodrigoscorza.Alcool.Thumbnail
+~/Library/Application\ Support/com.rodrigoscorza.Alcool      # Wine runtime
+~/Library/Caches/com.rodrigoscorza.Alcool
+~/Library/Logs/com.rodrigoscorza.Alcool
+~/Library/HTTPStorages/com.rodrigoscorza.Alcool
+~/Library/Preferences/com.rodrigoscorza.Alcool.plist
+~/Applications/Alcool                                         # Mac apps for your games
 ```
 
-If you also installed bottles in a **custom location**, delete those folders too. Migrated bottles that still belong to the original app live under `~/Library/Containers/com.isaacmarovitz.Whisky` and are left untouched by the steps above.
+Bottles created in a custom folder live wherever you put them.
 
-## Telemetry (opt-in)
+## Credits
 
-Whisky sends **no data by default**. During first-run setup you can opt in to
-anonymous usage telemetry — a checkbox that is **off** unless you tick it, and a
-toggle you can change anytime in **Settings → Privacy**.
+Alcool stands on other people's work:
 
-When (and only when) enabled, Whisky sends five events covering the first-run
-funnel, so the maintainer can see where new installs fail:
+- **[Whisky](https://github.com/Whisky-App/Whisky)**, created by
+  [Isaac Marovitz](https://github.com/IsaacMarovitz), which made running Windows games
+  on the Mac simple for the first time. Alcool keeps its foundations and its license.
+- **[frankea/Whisky](https://github.com/frankea/Whisky)**, the fork that kept Whisky
+  going after it was archived, with Wine 11, DXMT, launcher fixes, GameDB and much more.
+  Alcool started from it, and the Wine runtime still comes from it.
+- [Wine](https://www.winehq.org) and [CrossOver](https://www.codeweavers.com/crossover)
+  by CodeWeavers, D3DMetal by Apple, [DXMT](https://github.com/3Shain/dxmt) by 3Shain,
+  [DXVK-macOS](https://github.com/Gcenx/DXVK-macOS) by Gcenx and doitsujin,
+  [MoltenVK](https://github.com/KhronosGroup/MoltenVK),
+  [msync](https://github.com/marzent/wine-msync) by marzent,
+  [Sparkle](https://github.com/sparkle-project/Sparkle),
+  [SemanticVersion](https://github.com/SwiftPackageIndex/SemanticVersion) and
+  [swift-argument-parser](https://github.com/apple/swift-argument-parser).
 
-| Event | Properties |
-| --- | --- |
-| `runtime_install_started` | — |
-| `runtime_install_succeeded` | — |
-| `runtime_install_failed` | `reason`: one of `download_failed`, `verify_failed`, `tarball_missing`, `extract_failed`, `runtime_incomplete` |
-| `first_bottle_created` | — |
-| `first_program_launch_attempted` | — |
+If you want commercially supported Wine on the Mac, buy
+[CrossOver](https://www.codeweavers.com/crossover): CodeWeavers funds much of Wine's
+development.
 
-`runtime_install_started` is sent once per setup attempt; the `_succeeded` /
-`_failed` events are sent per install attempt (so retries are counted). The two
-`first_…` events are sent at most once per install.
+## License
 
-No personal data, file names, paths, raw error text, or identifiers tied to you
-are ever sent. Events carry a random per-install anonymous ID (reset if you opt
-out). Every event Whisky can send is the list above, and all of it is declared in
-one file, [`Whisky/Utils/Telemetry.swift`](Whisky/Utils/Telemetry.swift), with
-every automatic-capture feature of the analytics SDK disabled and no person
-profile ever created (`identify()` is never called). Each event also carries the
-SDK's standard context — app and macOS version, hardware model, locale, and more;
-see [SECURITY.md](SECURITY.md) for the full list. Like any HTTPS request,
-PostHog's ingestion sees the connecting IP (GeoIP enrichment is disabled); none
-of this is tied to your identity.
-
-## Documentation
-
-- **[Support](docs/SUPPORT.md)** - Where to file bugs and what to expect from a single-maintainer fork
-- **[Governance & continuity](docs/GOVERNANCE.md)** - Who maintains this and the honest bus-factor situation
-- **[Runtime dependencies](docs/DEPENDENCIES.md)** - The bundled Wine/DXVK/D3DMetal/DXMT versions and their upstream sources
-
-WhiskyKit, the core framework powering Whisky, has comprehensive API documentation:
-
-- **[WhiskyKit API Documentation](https://frankea.github.io/Whisky/documentation/whiskykit/)** - Full API reference with usage examples
-- **[Getting Started Guide](https://frankea.github.io/Whisky/documentation/whiskykit/gettingstarted)** - Learn how to integrate WhiskyKit
-- **[Architecture Overview](https://frankea.github.io/Whisky/documentation/whiskykit/architecture)** - Understand how WhiskyKit components work together
-
-### Troubleshooting
-
-- **[Launcher Troubleshooting](docs/LauncherTroubleshooting.md)** - Fix issues with Steam, Epic, Battle.net, etc.
-- **[Steam Compatibility Guide](docs/SteamCompatibility.md)** - Detailed guide for Steam on Whisky
-- **[Stability Troubleshooting](docs/StabilityTroubleshooting.md)** - Diagnose crashes, freezes, reboots, and kernel panics
-- **Controller Issues** - Enable "Controller Compatibility Mode" in Bottle Config → Controller & Input
-- **[Game Configurations](https://github.com/frankea/Whisky/blob/main/WhiskyKit/Sources/WhiskyKit/GameDatabase/Resources/GameDB.json)** - 80+ curated per-game compatibility configs, also browsable in-app under Game Configurations
-
-### Upstream issue audit
-
-Per-issue accounting of how this fork addresses the open issues from the
-archived upstream repo. Read [docs/AUDIT.md](docs/AUDIT.md) for the
-methodology — including how to read the `addressed-direct` vs
-`addressed-categorical` distinction and what `unverified` GameDB entries
-actually mean.
-
-### Test coverage
-
-The Coverage badge above is scoped to the **`whiskykit` flag** — line
-coverage of the framework that holds the bottle, Wine, GameDB, and
-PE-parser logic, measured by `swift test --enable-code-coverage` per
-[`.github/workflows/CI.yml`](.github/workflows/CI.yml). The blended
-project-wide number on the [Codecov dashboard](https://codecov.io/gh/frankea/Whisky)
-reads much lower because it averages in the SwiftUI app target, which
-only receives best-effort UI-test coverage. Read the badge as
-"WhiskyKit unit-test coverage," not full-app coverage.
-
-WhiskyUITests gives behavioural coverage of the SwiftUI surface (toolbar,
-create-bottle sheet, fixture-dependent flows). CI now runs them with
-`-enableCodeCoverage YES` and uploads the resulting app-target coverage to
-Codecov under a separate `whiskyapp` flag (best-effort — the upload never gates
-CI). Because UI tests exercise far less of the app than the unit tests do of
-WhiskyKit, expect the app-target number to read lower than the WhiskyKit badge
-above.
-
----
-
-## Credits & Acknowledgments
-
-Whisky is possible thanks to the magic of several projects:
-
-- [msync](https://github.com/marzent/wine-msync) by marzent
-- [DXVK-macOS](https://github.com/Gcenx/DXVK-macOS) by Gcenx and doitsujin
-- [DXMT](https://github.com/3Shain/dxmt) by 3Shain
-- [MoltenVK](https://github.com/KhronosGroup/MoltenVK) by KhronosGroup
-- [Sparkle](https://github.com/sparkle-project/Sparkle) by sparkle-project
-- [SemanticVersion](https://github.com/SwiftPackageIndex/SemanticVersion) by SwiftPackageIndex
-- [swift-argument-parser](https://github.com/apple/swift-argument-parser) by Apple
-- [CrossOver](https://www.codeweavers.com/crossover) by CodeWeavers and WineHQ
-- D3DMetal by Apple
-
-Special thanks to Gcenx, ohaiibuzzle, Nat Brown, and [Isaac Marovitz](https://github.com/IsaacMarovitz) (original author) for their support and contributions!
-
----
-
-<table>
-  <tr>
-    <td>
-        <picture>
-          <source media="(prefers-color-scheme: dark)" srcset="./images/cw-dark.png">
-          <img src="./images/cw-light.png" width="500">
-        </picture>
-    </td>
-    <td>
-        Whisky doesn't exist without CrossOver. If you want a fully-supported commercial Wine experience on macOS, check out <a href="https://www.codeweavers.com/crossover">CrossOver</a> from CodeWeavers. (This fork has no affiliate arrangement and receives nothing from CrossOver sales.)
-    </td>
-  </tr>
-</table>
+GPL-3.0, like Whisky. See [LICENSE](LICENSE). Alcool is not affiliated with
+CodeWeavers, Apple, the Whisky project or frankea.

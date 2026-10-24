@@ -17,6 +17,8 @@ type names, the GameDB) stay as they are upstream, so upstream changes merge wit
 | Data folder | `~/Library/Application Support/com.franke.Whisky` | `~/Library/Application Support/com.rodrigoscorza.Alcool` |
 | URL scheme | `whisky://` | `alcool://` |
 | Shortcut launcher path | `/Applications/Whisky.app` | `/Applications/Alcool.app` |
+| Command-line tool | `/usr/local/bin/whisky` | `/usr/local/bin/alcool` |
+| User-facing text | "Whisky", "WhiskyWine" | "Alcool", "Wine", in every language |
 | Help menu and issue links | frankea/Whisky | RodrigoLScorza/Alcool |
 | Signing team | upstream's team | unset (each builder picks their own) |
 
@@ -46,9 +48,9 @@ without sharing bottles, settings or URL handling.
   stay inert here and keep working upstream. TriageCommands only answers upstream's maintainers.
   Remove a guard when Alcool gets its own version of that piece (translations, docs site,
   releases, runtime tracking).
-- **User-facing strings** in the localization catalogs still say "Whisky" in places, as do the
-  app icon and the Discord presence text. These change in a later pass, ideally without editing
-  every translation by hand.
+- **Discord presence** has no Discord application yet: `DiscordPresence.defaultClientID` is
+  empty, so presence stays off until Alcool registers its own application and uploads an
+  `alcool` image to it.
 
 ## Alcool features and fixes
 
@@ -161,6 +163,11 @@ Designed in October 2026 around one idea: Wine's vocabulary stays out of the way
 - **Program page:** a header with a large Play button, the Sommelier's section, "How it runs"
   (graphics in plain words on the same per-program override, and language), and "Advanced".
 - Bottles, Winetricks, the terminal and DLL overrides are all still there, one level down.
+- **About Alcool** opens a window of its own (`AboutView`) with the version and the credits to
+  Isaac Marovitz's Whisky, frankea's fork and the projects underneath.
+- Strings that mention the app or the runtime are rewritten in every language by script
+  (Whisky → Alcool, WhiskyWine → Wine, with Korean particles and Finnish and Turkish endings
+  adjusted). Links to upstream issues and "Migrate from the Original Whisky" keep the old name.
 
 ## Syncing with upstream
 
