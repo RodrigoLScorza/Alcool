@@ -128,7 +128,8 @@ final class LibraryModel: ObservableObject {
             let steam = await Task.detached { SteamLibrarySource.entries(inBottleAt: url) }.value
 
             // Pins of one program by two paths (a Velopack stub and the
-            // `current/` program it starts) show once, as the first pin.
+            // `current/` program it starts, or a path through a linked profile
+            // folder) show once, as the first pin.
             var targets: Set<String> = []
             for item in LibraryCatalogue.merge([pinned, steam]) {
                 let sommelier = await sommelierInfo(for: item, d3dMetalAvailable: d3dMetalAvailable)
@@ -167,7 +168,7 @@ final class LibraryModel: ObservableObject {
             return SommelierInfo(
                 badge: report?.badge(d3dMetalAvailable: d3dMetalAvailable),
                 title: title == name ? nil : title,
-                target: ExecutableAnalyzer.launchTarget(of: url).path(percentEncoded: false).lowercased()
+                target: ExecutableAnalyzer.programIdentity(of: url)
             )
         }.value
     }

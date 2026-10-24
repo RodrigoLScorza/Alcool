@@ -237,6 +237,16 @@ public enum ExecutableAnalyzer {
         return FileManager.default.fileExists(atPath: delegate.path(percentEncoded: false)) ? delegate : url
     }
 
+    /// A key that is equal for two paths of one program: the launch target
+    /// (see ``launchTarget(of:)``) with symbolic links resolved, lowercased.
+    ///
+    /// Links matter in a bottle: Alcool keeps a profile folder under another
+    /// user's name (`users/crossover`) as a link to the one Wine uses, so a
+    /// shortcut written under one name and a pin under the other are one file.
+    public static func programIdentity(of url: URL) -> String {
+        launchTarget(of: url).resolvingSymlinksInPath().path(percentEncoded: false).lowercased()
+    }
+
     /// Folders that hold many programs rather than one program's files.
     static let sharedFolderNames: Set<String> = [
         "drive_c", "program files", "program files (x86)", "programdata", "common files",
